@@ -4,13 +4,14 @@ Fixed KernelSU compatibility (dynamic busybox path resolution)
 Fixed shebang in all scripts (removed hardcoded Magisk busybox path)
 Fixed syntax error in uninstall.sh
 Fixed quote bug in GMS0 variable across scripts
+Fixed loose product/ directory not merging into system/ on install
 Added APatch explicit support in customize.sh
+Added fallback stubs for ui_print/abort/set_perm in customize.sh
+Added CRLF to LF conversion requirement for Windows builds (see build.ps1)
 Reduced boot completion polling interval (100s → 10s)
 Updated gmsc whitelist parser for Android 15+ output format
 Updated updateJson to point to fork repository
-Fixed loose product/ directory not merging into system/ on install
-Added fallback stubs for ui_print/abort/set_perm in customize.sh
-Known issue: KernelSU 3.1.0 (32302) has LKM loading issues on some devices with Android 15, modules may not mount. Use KernelSU 22091.
+Known issue: KernelSU 3.x (32302+) requires meta-overlayfs or another metamodule to be installed first, otherwise modules will not mount. This is by design in KernelSU 3.x.
 - 1.9.2   
 Android 15 support   
 Improved root implementations (Support Magisk / KernelSU / APatch)   

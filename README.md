@@ -9,7 +9,9 @@
 > The original project appears to be unmaintained. This fork only attempts to adapt compatibility
 > for newer Android versions (15+) and KernelSU. No new features are intended.
 
-> **KernelSU compatibility note:** Tested working on KernelSU **22091**. Version **3.1.0 (32302)** has known LKM loading issues on Pixel 7 Pro (and possibly other devices) with Android 15 / kernel 6.1.99, causing modules to not mount. If you experience issues with module mounting, downgrade KernelSU to 22091.
+> **KernelSU 3.x (32302+) users:** KernelSU 3.x introduced a new [Metamodule](https://kernelsu.org/guide/metamodule.html) system. Without a metamodule installed, **modules will NOT be mounted**. Before installing this module, you must first install [meta-overlayfs](https://github.com/KernelSU-Modules-Repo/meta-overlayfs/releases) or another compatible metamodule.
+>
+> **KernelSU legacy (22091 and below):** Works out of the box, no metamodule required.
 
 ## Download Links
 - [GitHub Releases](https://github.com/MarsPatrick/universal-gms-doze/releases)
