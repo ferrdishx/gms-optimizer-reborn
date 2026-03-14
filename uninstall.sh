@@ -21,4 +21,8 @@ done
 # Remove GMS from battery optimization (restore to whitelist)
 dumpsys deviceidle whitelist +com.google.android.gms > $NLL 2>&1
 
+# Clear GMS cache to restore normal notification delivery
+cd /data/data
+find . -type f -name '*gms*' -delete > $NLL 2>&1
+
 exit 0
