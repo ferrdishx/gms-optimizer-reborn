@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Universal GMS Doze</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #00ff9d;
+    --accent-dim: rgba(0,255,157,0.12);
+    --accent-glow: rgba(0,255,157,0.25);
+    --warn: #ff6b35;
+    --warn-dim: rgba(255,107,53,0.12);
+    --text: #e0e0f0;
+    --text-dim: #606080;
+    --optimized: #00ff9d;
+    --not-optimized: #ff4466;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  header {
+    margin-bottom: 28px;
+  }
+
+  .logo-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .logo-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent-glow);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--accent-glow); }
+    50% { opacity: 0.5; box-shadow: 0 0 2px var(--accent-glow); }
+  }
+
+  h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .subtitle {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.04em;
+    padding-left: 18px;
+  }
+
+  /* Status card */
+  .status-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .status-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.4;
+  }
+
+  .status-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .status-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    transition: color 0.3s, text-shadow 0.3s;
+  }
+
+  .status-value.optimized {
+    color: var(--optimized);
+    text-shadow: 0 0 20px rgba(0,255,157,0.4);
+  }
+
+  .status-value.not-optimized {
+    color: var(--not-optimized);
+    text-shadow: 0 0 20px rgba(255,68,102,0.4);
+  }
+
+  .status-value.loading {
+    color: var(--text-dim);
+    text-shadow: none;
+  }
+
+  .refresh-btn {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .refresh-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .refresh-btn.spinning {
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* Section */
+  .section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    margin-top: 24px;
+  }
+
+  /* Action buttons */
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .action-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .action-btn:hover {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .action-btn:active {
+    transform: scale(0.99);
+  }
+
+  .action-btn.warn:hover {
+    border-color: var(--warn);
+    background: var(--warn-dim);
+  }
+
+  .action-btn.running {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  .btn-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+
+  .btn-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+
+  .btn-icon {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    opacity: 0.4;
+  }
+
+  /* Output terminal */
+  .output {
+    margin-top: 16px;
+    background: #07070d;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--text-dim);
+    min-height: 60px;
+    max-height: 200px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    display: none;
+  }
+
+  .output.visible { display: block; }
+
+  .output .ok { color: var(--accent); }
+  .output .err { color: var(--not-optimized); }
+  .output .info { color: #888; }
+
+  /* Footer */
+  footer {
+    margin-top: 36px;
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.06em;
+  }
+
+  footer a { color: var(--accent); text-decoration: none; opacity: 0.7; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-line">
+    <div class="logo-dot"></div>
+    <h1>Universal GMS Doze</h1>
+  </div>
+  <div class="subtitle" id="subtitle">loading...</div>
+</header>
+
+<!-- Status -->
+<div class="status-card">
+  <div class="status-label">GMS Optimization Status</div>
+  <div class="status-value loading" id="statusValue">Checking...</div>
+  <button class="refresh-btn" id="refreshBtn" onclick="checkStatus()" title="Refresh">↻</button>
+</div>
+
+<!-- Actions -->
+<div class="section-title">Actions</div>
+<div class="actions">
+
+  <button class="action-btn" onclick="runAction('fix_messages')">
+    <div class="btn-title">Fix Delayed Messages</div>
+    <div class="btn-desc">Clears cached GMS data that causes delayed notifications</div>
+    <span class="btn-icon">🧹</span>
+  </button>
+
+  <button class="action-btn" id="fmdBtn" onclick="toggleFmd()">
+    <div class="btn-title" id="fmdTitle">Find My Device</div>
+    <div class="btn-desc" id="fmdDesc">Checking status...</div>
+    <span class="btn-icon" id="fmdIcon">📍</span>
+  </button>
+
+  <button class="action-btn warn" onclick="runAction('force_doze')">
+    <div class="btn-title">Force Re-apply Optimization</div>
+    <div class="btn-desc">Removes GMS from Doze whitelist manually right now</div>
+    <span class="btn-icon">⚡</span>
+  </button>
+
+</div>
+
+<!-- Output -->
+<div class="output" id="output"></div>
+
+<footer>
+  fork of <a href="https://github.com/gloeyisk/universal-gms-doze">gloeyisk/universal-gms-doze</a>
+  · <a href="https://github.com/MarsPatrick/universal-gms-doze">source</a>
+</footer>
+
+<script>
+// KSU injects ksu object globally — no ES module import needed
+let _cbId = 0;
+function exec(cmd) {
+  return new Promise((resolve, reject) => {
+    const cb = `_ksu_cb_${Date.now()}_${_cbId++}`;
+    window[cb] = (errno, stdout, stderr) => {
+      delete window[cb];
+      resolve({ errno, stdout, stderr });
+    };
+    try {
+      ksu.exec(cmd, '{}', cb);
+    } catch(e) {
+      delete window[cb];
+      reject(e);
+    }
+  });
+}
+
+function toast(msg) {
+  try { ksu.toast(msg); } catch(e) { console.log(msg); }
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+window.checkStatus = async function() {
+  const btn = document.getElementById('refreshBtn');
+  const val = document.getElementById('statusValue');
+  btn.classList.add('spinning');
+  val.className = 'status-value loading';
+  val.textContent = 'Checking...';
+
+  try {
+    const { errno, stdout } = await exec('dumpsys deviceidle whitelist 2>/dev/null | grep com.google.android.gms | head -1');
+    if (stdout.trim() === '') {
+      val.className = 'status-value optimized';
+      val.textContent = '✓ Optimized';
+    } else {
+      val.className = 'status-value not-optimized';
+      val.textContent = '✗ Not Optimized';
+    }
+  } catch(e) {
+    val.className = 'status-value not-optimized';
+    val.textContent = 'Error';
+    toast('checkStatus error: ' + e);
+  }
+  btn.classList.remove('spinning');
+};
+
+window.runAction = async function(action) {
+  const output = document.getElementById('output');
+  output.classList.add('visible');
+  output.innerHTML = '<span class="info">Running...</span>';
+
+  const commands = {
+    fix_messages: "cd /data/data && find . -type f -name '*gms*' -delete && echo 'Done. GMS cache cleared.'",
+    force_doze: 'dumpsys deviceidle whitelist -com.google.android.gms 2>&1 && echo "Done. GMS removed from whitelist."'
+  };
+
+  try {
+    const { errno, stdout, stderr } = await exec(commands[action]);
+    const out = (stdout || '') + (stderr || '');
+    const cls = errno === 0 ? 'ok' : 'err';
+    output.innerHTML = `<span class="${cls}">${escapeHtml(out.trim() || 'Done.')}</span>`;
+    if (action === 'force_doze') setTimeout(() => window.checkStatus(), 800);
+  } catch(e) {
+    output.innerHTML = `<span class="err">Error: ${escapeHtml(e)}</span>`;
+  }
+};
+
+const FMD = 'com.google.android.gms/com.google.android.gms.mdm.receivers.MdmDeviceAdminReceiver';
+
+window.checkFmdStatus = async function() {
+  const title = document.getElementById('fmdTitle');
+  const desc  = document.getElementById('fmdDesc');
+  const btn   = document.getElementById('fmdBtn');
+  try {
+    const { stdout } = await exec("pm query-receivers --components -a android.app.action.DEVICE_ADMIN_ENABLED 2>/dev/null | grep MdmDeviceAdminReceiver");
+    const enabled = stdout.trim() !== '';
+    if (enabled) {
+      title.textContent = 'Disable Find My Device';
+      desc.textContent  = 'MdmDeviceAdminReceiver is ENABLED — tap to disable (optional)';
+      btn.dataset.state = 'enabled';
+    } else {
+      title.textContent = 'Enable Find My Device';
+      desc.textContent  = 'MdmDeviceAdminReceiver is DISABLED — tap to enable';
+      btn.dataset.state = 'disabled';
+    }
+  } catch(e) {
+    desc.textContent = 'Could not check status';
+  }
+};
+
+window.toggleFmd = async function() {
+  const btn    = document.getElementById('fmdBtn');
+  const output = document.getElementById('output');
+  const state  = btn.dataset.state;
+  output.classList.add('visible');
+  output.innerHTML = '<span class="info">Running...</span>';
+
+  const cmd = state === 'disabled'
+    ? `pm enable ${FMD} 2>&1 && echo "Find My Device enabled."`
+    : `pm disable ${FMD} 2>&1 && echo "Find My Device disabled."`;
+
+  try {
+    const { errno, stdout, stderr } = await exec(cmd);
+    const out = (stdout || '') + (stderr || '');
+    output.innerHTML = `<span class="${errno === 0 ? 'ok' : 'err'}">${escapeHtml(out.trim())}</span>`;
+    setTimeout(() => window.checkFmdStatus(), 500);
+  } catch(e) {
+    output.innerHTML = `<span class="err">Error: ${escapeHtml(e)}</span>`;
+  }
+};
+
+// Init
+window.checkStatus();
+window.checkFmdStatus();
+
+// Load version from module.prop
+(async function() {
+  try {
+    const { stdout } = await exec("grep -E '^version=|^maintainer=' /data/adb/modules/universal-gms-doze/module.prop 2>/dev/null");
+    const version    = (stdout.match(/^version=(.+)/m) || [])[1] || '';
+    const maintainer = (stdout.match(/^maintainer=(.+)/m) || [])[1] || '';
+    const parts = [];
+    if (version)    parts.push('v' + version.trim());
+    if (maintainer) parts.push('maintainer: ' + maintainer.trim());
+    document.getElementById('subtitle').textContent = parts.join(' · ') || 'Universal GMS Doze';
+  } catch(e) {
+    document.getElementById('subtitle').textContent = 'Universal GMS Doze';
+  }
+})();
+</script>
+
+</body>
+</html>

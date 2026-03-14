@@ -1,4 +1,6 @@
 ## Change Log:
+- 1.9.4
+Added WebUI with GMS Patch status, Fix Delayed Messages, Find My Device toggle, and Force Re-apply Optimization
 - 1.9.3
 Fixed KernelSU compatibility (dynamic busybox path resolution)
 Fixed shebang in all scripts (removed hardcoded Magisk busybox path)

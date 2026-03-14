@@ -4,6 +4,16 @@
 - Patches Google Play services app and certain processes/services to be able to use battery optimization
 - Support API 23 or later
 - Support Magisk, KernelSU, and APatch root implementations
+- WebUI available
+
+## WebUI
+The module includes a built-in WebUI accessible from the KernelSU module page.
+
+Features:
+- GMS optimization status indicator
+- Fix delayed notifications (clears GMS cache)
+- Find My Device toggle (enable/disable)
+- Force re-apply optimization
 
 > **Note:** This is an unofficial fork of [gloeyisk/universal-gms-doze](https://github.com/gloeyisk/universal-gms-doze).
 > The original project appears to be unmaintained. This fork only attempts to adapt compatibility

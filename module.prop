@@ -1,7 +1,7 @@
 id=universal-gms-doze
 name=Universal GMS Doze
-version=1.9.3
-versionCode=193
+version=1.9.4
+versionCode=194
 author=gloeyisk
 maintainer=MarsPatrick
 description=Patches Google Play services app and certain processes/services to be able to use battery optimizations
