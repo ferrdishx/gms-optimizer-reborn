@@ -1,10 +1,18 @@
 # Universal GMS Doze
 
+> **Note:** This is an unofficial fork of [gloeyisk/universal-gms-doze](https://github.com/gloeyisk/universal-gms-doze).
+> The original project appears to be unmaintained. This fork only attempts to adapt compatibility
+> for newer Android versions (15+) and KernelSU. No new features are intended.
+
 ## Overview
 - Patches Google Play services app and certain processes/services to be able to use battery optimization
 - Support API 23 or later
 - Support Magisk, KernelSU, and APatch root implementations
 - WebUI available
+
+> **KernelSU 3.x (32302+) users:** KernelSU 3.x introduced a new [Metamodule](https://kernelsu.org/guide/metamodule.html) system. Without a metamodule installed, **modules will NOT be mounted**. Before installing this module, you must first install [meta-overlayfs](https://github.com/KernelSU-Modules-Repo/meta-overlayfs/releases) or another compatible metamodule.
+>
+> **KernelSU legacy (22091 and below):** Works out of the box, no metamodule required.
 
 ## WebUI
 The module includes a built-in WebUI accessible from the KernelSU module page.
@@ -14,14 +22,6 @@ Features:
 - Fix delayed notifications (clears GMS cache)
 - Find My Device toggle (enable/disable)
 - Force re-apply optimization
-
-> **Note:** This is an unofficial fork of [gloeyisk/universal-gms-doze](https://github.com/gloeyisk/universal-gms-doze).
-> The original project appears to be unmaintained. This fork only attempts to adapt compatibility
-> for newer Android versions (15+) and KernelSU. No new features are intended.
-
-> **KernelSU 3.x (32302+) users:** KernelSU 3.x introduced a new [Metamodule](https://kernelsu.org/guide/metamodule.html) system. Without a metamodule installed, **modules will NOT be mounted**. Before installing this module, you must first install [meta-overlayfs](https://github.com/KernelSU-Modules-Repo/meta-overlayfs/releases) or another compatible metamodule.
->
-> **KernelSU legacy (22091 and below):** Works out of the box, no metamodule required.
 
 ## Download Links
 - [GitHub Releases](https://github.com/MarsPatrick/universal-gms-doze/releases)
