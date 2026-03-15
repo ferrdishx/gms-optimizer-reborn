@@ -1,4 +1,7 @@
 ## Change Log:
+- 1.9.5
+Updated uninstall.sh to add clear cache
+Added debug zip
 - 1.9.4
 Added WebUI with GMS Patch status, Fix Delayed Messages, Find My Device toggle, and Force Re-apply Optimization
 - 1.9.3
