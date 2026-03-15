@@ -27,6 +27,9 @@ Features:
 - [GitHub Releases](https://github.com/MarsPatrick/universal-gms-doze/releases)
 
 ## Troubleshooting
+
+> All actions below can also be performed from the built-in WebUI without needing a terminal.
+
 - Command-line for check optimization (with module installed):
 ```
 > su
@@ -51,11 +54,18 @@ If the issue still persists, move the app to Not Optimized battery usage.
 > pm disable com.google.android.gms/com.google.android.gms.mdm.receivers.MdmDeviceAdminReceiver
 ```
 
+## Tested Devices
+
+| Device | Codename | ROM | Android | Kernel | KernelSU |
+|--------|----------|-----|---------|--------|----------|
+| Pixel 7 Pro | cheetah | crDroid 11.6 | 15 | blu_spark 256 | KernelSU 3.1.0 GKI |
+| Xiaomi Mi 10 | umi | PixelOS 16.2 | 16 | N0Kernel v16.4.9 v2 | KernelSU Next 1.1.1 hotfix |
+
 ## Credits
 - [gloeyisk](https://github.com/gloeyisk/universal-gms-doze) / Original author
 - topjohnwu / Magisk - Magisk Module Template
 - JumbomanXDA, MrCarb0n / Script fixer and helper
 
-## Extras (Original Author)
+## Extras (From Original Author)
 - Donations: [PayPal](https://paypal.me/gloeyisk) - [LiberaPay](https://liberapay.com/gloeyisk) - [Ko-fi](https://ko-fi.com/gloeyisk)
 - Support Thread: [XDA Developers](https://forum.xda-developers.com/apps/magisk/module-universal-gms-doze-t3853710)
