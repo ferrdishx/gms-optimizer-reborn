@@ -57,6 +57,8 @@ ui_print "- Patching XML files"
 GMS0="\"com.google.android.gms\""
 STR1="allow-in-power-save package=$GMS0"
 STR2="allow-in-data-usage-save package=$GMS0"
+STR3="allow-unthrottled-location package=$GMS0"
+STR4="allow-ignore-location-settings package=$GMS0"
 NULL="/dev/null"
 }
 
@@ -65,7 +67,7 @@ SYS_XML="$(
 SXML="$(find /system_ext/* /system/* /product/* \
 /vendor/* /india/* /my_bigball/* -type f -iname '*.xml' -print 2>/dev/null)"
 for S in $SXML; do
-    if grep -qE "$STR1|$STR2" $ROOT$S 2> $NULL; then
+    if grep -qE "$STR1|$STR2|$STR3|$STR4" $ROOT$S 2> $NULL; then
         echo "$S"
     fi
 done
@@ -76,7 +78,7 @@ PATCH_SX() {
         mkdir -p "$(dirname $MODPATH$SX)"
         cp -af $ROOT$SX $MODPATH$SX
         ui_print "  Patching: $SX"
-        sed -i "/$STR1/d;/$STR2/d" $MODPATH/$SX
+        sed -i "/$STR1/d;/$STR2/d;/$STR3/d;/$STR4/d" $MODPATH/$SX
     done
 }
 
@@ -96,7 +98,7 @@ MERGE_DIRS() {
 MOD_XML="$(
 MXML="$(find /data/adb/* -type f -iname "*.xml" -print 2>/dev/null)"
 for M in $MXML; do
-    if grep -qE "$STR1|$STR2" "$M" 2>/dev/null; then
+    if grep -qE "$STR1|$STR2|$STR3|$STR4" "$M" 2>/dev/null; then
         echo "$M"
     fi
 done
@@ -107,12 +109,20 @@ PATCH_MX() {
     for MX in $MOD_XML; do
         MOD="$(echo "$MX" | awk -F'/' '{print $5}')"
         ui_print "  $MOD: $MX"
-        sed -i "/$STR1/d;/$STR2/d" "$MX"
+        sed -i "/$STR1/d;/$STR2/d;/$STR3/d;/$STR4/d" "$MX"
     done
 }
 
 # Find and patch conflicting XML
-PATCH_SX && PATCH_MX && MERGE_DIRS
+PATCH_SX && PATCH_MX
+
+# Merge top-level partition dirs into system/ for Magisk and KSU without metamodule
+# meta-overlayfs expects product/vendor/system_ext at module root — skip merge if present
+if [ -n "$MAGISK_VER_CODE" ] && [ -z "$KSU" ] && [ -z "$APATCH" ]; then
+    MERGE_DIRS
+elif [ -n "$KSU" ] && [ ! -L /data/adb/metamodule ] && [ ! -d /data/adb/metamodule ]; then
+    MERGE_DIRS
+fi
 
 # Additional add-on for check gms status
 ADDON() {

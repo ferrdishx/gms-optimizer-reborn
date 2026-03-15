@@ -1,9 +1,16 @@
 ## Change Log:
+
+- 1.9.6
+Added more tags to find and patch GMS
+Added webui option to add apps for a new delay fix
+
 - 1.9.5
 Updated uninstall.sh to add clear cache
 Added debug zip
+
 - 1.9.4
 Added WebUI with GMS Patch status, Fix Delayed Messages, Find My Device toggle, and Force Re-apply Optimization
+
 - 1.9.3
 Fixed KernelSU compatibility (dynamic busybox path resolution)
 Fixed shebang in all scripts (removed hardcoded Magisk busybox path)
@@ -17,6 +24,7 @@ Reduced boot completion polling interval (100s → 10s)
 Updated gmsc whitelist parser for Android 15+ output format
 Updated updateJson to point to fork repository
 Known issue: KernelSU 3.x (32302+) requires meta-overlayfs or another metamodule to be installed first, otherwise modules will not mount. This is by design in KernelSU 3.x.
+
 - 1.9.2   
 Android 15 support   
 Improved root implementations (Support Magisk / KernelSU / APatch)   

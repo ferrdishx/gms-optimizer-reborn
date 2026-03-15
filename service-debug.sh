@@ -53,6 +53,24 @@ echo "[DEBUG] Removing GMS from Doze whitelist..."
 RESULT=$(dumpsys deviceidle whitelist -com.google.android.gms 2>&1)
 echo "  result=$RESULT"
 
+echo "[DEBUG] Re-applying notification exemptions from config..."
+CONF="/data/adb/modules/universal-gms-doze/exemptions.conf"
+if [ -f "$CONF" ]; then
+    while IFS= read -r PKG; do
+        [ -z "$PKG" ] && continue
+        R1=$(dumpsys deviceidle whitelist +$PKG 2>&1)
+        R2=$(cmd appops set $PKG RUN_IN_BACKGROUND allow 2>&1)
+        R3=$(cmd appops set $PKG RUN_ANY_IN_BACKGROUND allow 2>&1)
+        echo "  exempted: $PKG | whitelist=$R1 | bg=$R2 | anybg=$R3"
+    done < "$CONF"
+    echo "[DEBUG] Clearing GMS cache after exemptions..."
+    cd /data/data
+    find . -type f -name '*gms*' -delete
+    echo "  GMS cache cleared."
+else
+    echo "  No exemptions.conf found, skipping"
+fi
+
 echo "[DEBUG] Verifying GMS optimization status..."
 STATUS=$(dumpsys deviceidle whitelist 2>/dev/null | grep com.google.android.gms | head -1)
 if [ -z "$STATUS" ]; then

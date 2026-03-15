@@ -33,37 +33,21 @@
     padding: 20px 16px 40px;
   }
 
-  /* Scanline overlay */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.08) 2px,
-      rgba(0,0,0,0.08) 4px
-    );
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
     pointer-events: none;
     z-index: 999;
   }
 
-  header {
-    margin-bottom: 28px;
-  }
+  header { margin-bottom: 20px; }
 
-  .logo-line {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 4px;
-  }
+  .logo-line { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
 
   .logo-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
+    width: 8px; height: 8px; border-radius: 50%;
     background: var(--accent);
     box-shadow: 0 0 8px var(--accent-glow);
     animation: pulse 2s ease-in-out infinite;
@@ -76,20 +60,49 @@
 
   h1 {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 15px;
-    font-weight: 700;
+    font-size: 15px; font-weight: 700;
     color: var(--accent);
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
   .subtitle {
-    font-size: 11px;
-    color: var(--text-dim);
+    font-size: 11px; color: var(--text-dim);
     font-family: 'JetBrains Mono', monospace;
     letter-spacing: 0.04em;
     padding-left: 18px;
   }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+  }
+
+  .tab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 8px 14px;
+    cursor: pointer;
+    margin-bottom: -1px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  .page { display: none; }
+  .page.active { display: block; }
 
   /* Status card */
   .status-card {
@@ -113,8 +126,7 @@
 
   .status-label {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--text-dim);
+    font-size: 10px; color: var(--text-dim);
     letter-spacing: 0.12em;
     text-transform: uppercase;
     margin-bottom: 12px;
@@ -122,128 +134,71 @@
 
   .status-value {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 22px;
-    font-weight: 700;
+    font-size: 22px; font-weight: 700;
     letter-spacing: 0.04em;
     transition: color 0.3s, text-shadow 0.3s;
   }
 
-  .status-value.optimized {
-    color: var(--optimized);
-    text-shadow: 0 0 20px rgba(0,255,157,0.4);
-  }
-
-  .status-value.not-optimized {
-    color: var(--not-optimized);
-    text-shadow: 0 0 20px rgba(255,68,102,0.4);
-  }
-
-  .status-value.loading {
-    color: var(--text-dim);
-    text-shadow: none;
-  }
+  .status-value.optimized { color: var(--optimized); text-shadow: 0 0 20px rgba(0,255,157,0.4); }
+  .status-value.not-optimized { color: var(--not-optimized); text-shadow: 0 0 20px rgba(255,68,102,0.4); }
+  .status-value.loading { color: var(--text-dim); text-shadow: none; }
 
   .refresh-btn {
-    position: absolute;
-    top: 16px; right: 16px;
-    background: none;
-    border: 1px solid var(--border);
+    position: absolute; top: 16px; right: 16px;
+    background: none; border: 1px solid var(--border);
     color: var(--text-dim);
     width: 32px; height: 32px;
-    border-radius: 6px;
-    cursor: pointer;
+    border-radius: 6px; cursor: pointer;
     font-size: 14px;
     display: flex; align-items: center; justify-content: center;
     transition: border-color 0.2s, color 0.2s;
   }
 
-  .refresh-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
+  .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .refresh-btn.spinning { animation: spin 0.6s linear infinite; }
 
-  .refresh-btn.spinning {
-    animation: spin 0.6s linear infinite;
-  }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  /* Section */
   .section-title {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--text-dim);
+    font-size: 10px; color: var(--text-dim);
     letter-spacing: 0.12em;
     text-transform: uppercase;
     margin-bottom: 10px;
     margin-top: 24px;
   }
 
-  /* Action buttons */
-  .actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
+  .actions { display: flex; flex-direction: column; gap: 10px; }
 
   .action-btn {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 14px 16px;
-    cursor: pointer;
-    text-align: left;
+    cursor: pointer; text-align: left;
     transition: border-color 0.2s, background 0.2s;
-    position: relative;
-    overflow: hidden;
+    position: relative; overflow: hidden;
+    width: 100%;
   }
 
-  .action-btn:hover {
-    border-color: var(--accent);
-    background: var(--accent-dim);
-  }
-
-  .action-btn:active {
-    transform: scale(0.99);
-  }
-
-  .action-btn.warn:hover {
-    border-color: var(--warn);
-    background: var(--warn-dim);
-  }
-
-  .action-btn.running {
-    pointer-events: none;
-    opacity: 0.6;
-  }
+  .action-btn:hover { border-color: var(--accent); background: var(--accent-dim); }
+  .action-btn:active { transform: scale(0.99); }
+  .action-btn.warn:hover { border-color: var(--warn); background: var(--warn-dim); }
 
   .btn-title {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 3px;
+    font-size: 13px; font-weight: 600;
+    color: var(--text); margin-bottom: 3px;
   }
 
-  .btn-desc {
-    font-size: 11px;
-    color: var(--text-dim);
-    line-height: 1.4;
-  }
+  .btn-desc { font-size: 11px; color: var(--text-dim); line-height: 1.4; }
 
   .btn-icon {
-    position: absolute;
-    right: 16px;
-    top: 50%;
+    position: absolute; right: 16px; top: 50%;
     transform: translateY(-50%);
-    font-size: 18px;
-    opacity: 0.4;
+    font-size: 18px; opacity: 0.4;
   }
 
-  /* Output terminal */
   .output {
     margin-top: 16px;
     background: #07070d;
@@ -251,29 +206,99 @@
     border-radius: 8px;
     padding: 14px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    line-height: 1.6;
+    font-size: 11px; line-height: 1.6;
     color: var(--text-dim);
-    min-height: 60px;
-    max-height: 200px;
+    min-height: 60px; max-height: 200px;
     overflow-y: auto;
-    white-space: pre-wrap;
-    word-break: break-all;
+    white-space: pre-wrap; word-break: break-all;
     display: none;
   }
 
   .output.visible { display: block; }
-
   .output .ok { color: var(--accent); }
   .output .err { color: var(--not-optimized); }
   .output .info { color: #888; }
 
-  /* Footer */
+  /* App exemptions */
+  .search-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    margin-bottom: 8px;
+    transition: border-color 0.2s;
+  }
+
+  .search-input:focus { border-color: var(--accent); }
+
+  .app-list {
+    max-height: 320px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .app-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: border-color 0.2s;
+  }
+
+  .app-item.exempted { border-color: var(--accent); background: var(--accent-dim); }
+
+  .app-item-info { flex: 1; min-width: 0; }
+
+  .app-item-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 600;
+    color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .app-item-pkg {
+    font-size: 10px; color: var(--text-dim);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .app-toggle {
+    width: 36px; height: 20px;
+    border-radius: 10px; border: none;
+    cursor: pointer; position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    background: var(--border);
+  }
+
+  .app-toggle.on { background: var(--accent); }
+
+  .app-toggle::after {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: white;
+    top: 3px; left: 3px;
+    transition: transform 0.2s;
+  }
+
+  .app-toggle.on::after { transform: translateX(16px); }
+  .app-toggle:disabled { opacity: 0.5; cursor: wait; }
+
   footer {
     margin-top: 36px;
     text-align: center;
-    font-size: 10px;
-    color: var(--text-dim);
+    font-size: 10px; color: var(--text-dim);
     font-family: 'JetBrains Mono', monospace;
     letter-spacing: 0.06em;
   }
@@ -291,60 +316,89 @@
   <div class="subtitle" id="subtitle">loading...</div>
 </header>
 
-<!-- Status -->
-<div class="status-card">
-  <div class="status-label">GMS Optimization Status</div>
-  <div class="status-value loading" id="statusValue">Checking...</div>
-  <button class="refresh-btn" id="refreshBtn" onclick="checkStatus()" title="Refresh">↻</button>
+<!-- Tab navigation -->
+<div class="tabs">
+  <button class="tab active" onclick="showPage('home', this)">Home</button>
+  <button class="tab" onclick="showPage('exemptions', this)">Exemptions</button>
+  <button class="tab" onclick="showPage('debug', this)">Debug</button>
 </div>
 
-<!-- Actions -->
-<div class="section-title">Actions</div>
-<div class="actions">
+<!-- Page: Home -->
+<div class="page active" id="page-home">
 
-  <button class="action-btn" onclick="runAction('fix_messages')">
-    <div class="btn-title">Fix Delayed Messages</div>
-    <div class="btn-desc">Clears cached GMS data that causes delayed notifications</div>
-    <span class="btn-icon">🧹</span>
-  </button>
+  <div class="status-card">
+    <div class="status-label">GMS Optimization Status</div>
+    <div class="status-value loading" id="statusValue">Checking...</div>
+    <button class="refresh-btn" id="refreshBtn" onclick="checkStatus()" title="Refresh">↻</button>
+  </div>
 
-  <button class="action-btn" id="fmdBtn" onclick="toggleFmd()">
-    <div class="btn-title" id="fmdTitle">Find My Device</div>
-    <div class="btn-desc" id="fmdDesc">Checking status...</div>
-    <span class="btn-icon" id="fmdIcon">📍</span>
-  </button>
+  <div class="section-title">Actions</div>
+  <div class="actions">
 
-  <button class="action-btn warn" onclick="runAction('force_doze')">
-    <div class="btn-title">Force Re-apply Optimization</div>
-    <div class="btn-desc">Removes GMS from Doze whitelist manually right now</div>
-    <span class="btn-icon">⚡</span>
-  </button>
-
-</div>
-
-<!-- Output -->
-<div class="output" id="output"></div>
-
-<!-- Debug Log -->
-<div class="section-title" style="margin-top:24px;">Debug Log</div>
-<div class="actions" style="margin-bottom:10px;">
-  <div style="display:flex; gap:8px;">
-    <button class="action-btn" style="flex:1; padding:12px;" onclick="viewDebugLog()">
-      <div class="btn-title" style="font-size:12px;">👁 View Log</div>
-      <div class="btn-desc">Show debug.log contents</div>
+    <button class="action-btn" onclick="runAction('fix_messages')">
+      <div class="btn-title">Fix Delayed Messages</div>
+      <div class="btn-desc">Clears cached GMS data that causes delayed notifications</div>
+      <span class="btn-icon">🧹</span>
     </button>
-    <button class="action-btn" style="flex:1; padding:12px;" onclick="exportDebugLog()">
-      <div class="btn-title" style="font-size:12px;">📤 Export Log</div>
-      <div class="btn-desc">Copy to /sdcard</div>
+
+    <button class="action-btn" id="fmdBtn" onclick="toggleFmd()">
+      <div class="btn-title" id="fmdTitle">Find My Device</div>
+      <div class="btn-desc" id="fmdDesc">Checking status...</div>
+      <span class="btn-icon">📍</span>
+    </button>
+
+    <button class="action-btn warn" onclick="runAction('force_doze')">
+      <div class="btn-title">Force Re-apply Optimization</div>
+      <div class="btn-desc">Removes GMS from Doze whitelist manually right now</div>
+      <span class="btn-icon">⚡</span>
+    </button>
+
+  </div>
+
+  <div class="output" id="output"></div>
+
+</div>
+
+<!-- Page: Exemptions -->
+<div class="page" id="page-exemptions">
+
+  <div style="font-size:11px; color:var(--text-dim); margin-bottom:12px; line-height:1.6;">
+    Exempted apps bypass Doze and background restrictions for reliable push notifications.
+    Settings are saved and re-applied on every boot.
+  </div>
+
+  <input type="text" class="search-input" id="appSearch" placeholder="Search apps..." oninput="filterApps()">
+
+  <div class="app-list" id="appList">
+    <div style="color:var(--text-dim); font-size:11px; font-family:'JetBrains Mono',monospace; padding:8px;">
+      Loading apps...
+    </div>
+  </div>
+
+</div>
+
+
+<!-- Page: Debug -->
+<div class="page" id="page-debug">
+  <div style="font-size:11px; color:var(--text-dim); margin-bottom:12px; line-height:1.6;">
+    Debug log stored at <code style="color:var(--accent)">/data/adb/modules/universal-gms-doze/debug.log</code>
+  </div>
+  <div class="actions" style="margin-bottom:12px;">
+    <div style="display:flex; gap:8px;">
+      <button class="action-btn" style="flex:1; padding:12px;" onclick="viewDebugLog()">
+        <div class="btn-title" style="font-size:12px;">👁 View Log</div>
+      </button>
+      <button class="action-btn" style="flex:1; padding:12px;" onclick="exportDebugLog()">
+        <div class="btn-title" style="font-size:12px;">📤 Export</div>
+      </button>
+    </div>
+    <button class="action-btn warn" onclick="clearDebugLog()">
+      <div class="btn-title">🗑 Clear Log</div>
+      <div class="btn-desc">Delete debug.log from module folder</div>
     </button>
   </div>
-  <button class="action-btn warn" style="margin-top:0;" onclick="clearDebugLog()">
-    <div class="btn-title">🗑 Clear Log</div>
-    <div class="btn-desc">Delete debug.log from module folder</div>
-    <span class="btn-icon">⚠️</span>
-  </button>
+  <div class="output" id="debugLog" style="max-height:400px; display:none;"></div>
 </div>
-<div class="output" id="debugLog" style="max-height:400px;"></div>
 
 <footer>
   fork of <a href="https://github.com/gloeyisk/universal-gms-doze">gloeyisk/universal-gms-doze</a>
@@ -352,52 +406,45 @@
 </footer>
 
 <script>
-// KSU injects ksu object globally — no ES module import needed
+const MOD = '/data/adb/modules/universal-gms-doze';
+const CONFIG = MOD + '/exemptions.conf';
+
 let _cbId = 0;
 function exec(cmd) {
   return new Promise((resolve, reject) => {
     const cb = `_ksu_cb_${Date.now()}_${_cbId++}`;
-    window[cb] = (errno, stdout, stderr) => {
-      delete window[cb];
-      resolve({ errno, stdout, stderr });
-    };
-    try {
-      ksu.exec(cmd, '{}', cb);
-    } catch(e) {
-      delete window[cb];
-      reject(e);
-    }
+    window[cb] = (errno, stdout, stderr) => { delete window[cb]; resolve({ errno, stdout, stderr }); };
+    try { ksu.exec(cmd, '{}', cb); }
+    catch(e) { delete window[cb]; reject(e); }
   });
 }
 
-function toast(msg) {
-  try { ksu.toast(msg); } catch(e) { console.log(msg); }
-}
+function toast(msg) { try { ksu.toast(msg); } catch(e) { console.log(msg); } }
+function escapeHtml(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-function escapeHtml(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
+// ── Navigation ────────────────────────────────────────────────
+window.showPage = function(id, tab) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  tab.classList.add('active');
+  if (id === 'exemptions' && allApps.length === 0) loadApps();
+};
 
+// ── Home page ─────────────────────────────────────────────────
 window.checkStatus = async function() {
   const btn = document.getElementById('refreshBtn');
   const val = document.getElementById('statusValue');
   btn.classList.add('spinning');
   val.className = 'status-value loading';
   val.textContent = 'Checking...';
-
   try {
-    const { errno, stdout } = await exec('dumpsys deviceidle whitelist 2>/dev/null | grep com.google.android.gms | head -1');
-    if (stdout.trim() === '') {
-      val.className = 'status-value optimized';
-      val.textContent = '✓ Optimized';
-    } else {
-      val.className = 'status-value not-optimized';
-      val.textContent = '✗ Not Optimized';
-    }
+    const { stdout } = await exec('dumpsys deviceidle whitelist 2>/dev/null | grep com.google.android.gms | head -1');
+    val.className = stdout.trim() === '' ? 'status-value optimized' : 'status-value not-optimized';
+    val.textContent = stdout.trim() === '' ? '✓ Optimized' : '✗ Not Optimized';
   } catch(e) {
     val.className = 'status-value not-optimized';
     val.textContent = 'Error';
-    toast('checkStatus error: ' + e);
   }
   btn.classList.remove('spinning');
 };
@@ -406,17 +453,14 @@ window.runAction = async function(action) {
   const output = document.getElementById('output');
   output.classList.add('visible');
   output.innerHTML = '<span class="info">Running...</span>';
-
   const commands = {
     fix_messages: "cd /data/data && find . -type f -name '*gms*' -delete && echo 'Done. GMS cache cleared.'",
-    force_doze: 'dumpsys deviceidle whitelist -com.google.android.gms 2>&1 && echo "Done. GMS removed from whitelist."'
+    force_doze: 'dumpsys deviceidle whitelist -com.google.android.gms 2>&1 && echo "Done."'
   };
-
   try {
     const { errno, stdout, stderr } = await exec(commands[action]);
     const out = (stdout || '') + (stderr || '');
-    const cls = errno === 0 ? 'ok' : 'err';
-    output.innerHTML = `<span class="${cls}">${escapeHtml(out.trim() || 'Done.')}</span>`;
+    output.innerHTML = `<span class="${errno === 0 ? 'ok' : 'err'}">${escapeHtml(out.trim() || 'Done.')}</span>`;
     if (action === 'force_doze') setTimeout(() => window.checkStatus(), 800);
   } catch(e) {
     output.innerHTML = `<span class="err">Error: ${escapeHtml(e)}</span>`;
@@ -432,18 +476,10 @@ window.checkFmdStatus = async function() {
   try {
     const { stdout } = await exec("pm query-receivers --components -a android.app.action.DEVICE_ADMIN_ENABLED 2>/dev/null | grep MdmDeviceAdminReceiver");
     const enabled = stdout.trim() !== '';
-    if (enabled) {
-      title.textContent = 'Disable Find My Device';
-      desc.textContent  = 'MdmDeviceAdminReceiver is ENABLED — tap to disable (optional)';
-      btn.dataset.state = 'enabled';
-    } else {
-      title.textContent = 'Enable Find My Device';
-      desc.textContent  = 'MdmDeviceAdminReceiver is DISABLED — tap to enable';
-      btn.dataset.state = 'disabled';
-    }
-  } catch(e) {
-    desc.textContent = 'Could not check status';
-  }
+    title.textContent = enabled ? 'Disable Find My Device' : 'Enable Find My Device';
+    desc.textContent  = enabled ? 'MdmDeviceAdminReceiver is ENABLED — tap to disable (optional)' : 'MdmDeviceAdminReceiver is DISABLED — tap to enable';
+    btn.dataset.state = enabled ? 'enabled' : 'disabled';
+  } catch(e) { desc.textContent = 'Could not check status'; }
 };
 
 window.toggleFmd = async function() {
@@ -452,90 +488,164 @@ window.toggleFmd = async function() {
   const state  = btn.dataset.state;
   output.classList.add('visible');
   output.innerHTML = '<span class="info">Running...</span>';
-
   const cmd = state === 'disabled'
     ? `pm enable ${FMD} 2>&1 && echo "Find My Device enabled."`
     : `pm disable ${FMD} 2>&1 && echo "Find My Device disabled."`;
-
   try {
     const { errno, stdout, stderr } = await exec(cmd);
-    const out = (stdout || '') + (stderr || '');
-    output.innerHTML = `<span class="${errno === 0 ? 'ok' : 'err'}">${escapeHtml(out.trim())}</span>`;
+    output.innerHTML = `<span class="${errno === 0 ? 'ok' : 'err'}">${escapeHtml((stdout||'')+(stderr||''))}</span>`;
     setTimeout(() => window.checkFmdStatus(), 500);
-  } catch(e) {
-    output.innerHTML = `<span class="err">Error: ${escapeHtml(e)}</span>`;
-  }
+  } catch(e) { output.innerHTML = `<span class="err">Error: ${escapeHtml(e)}</span>`; }
 };
 
-// Init
+// ── Exemptions page ───────────────────────────────────────────
+let allApps = [];
+
+async function loadConfig() {
+  const { errno, stdout } = await exec(`cat "${CONFIG}" 2>/dev/null`);
+  if (errno !== 0 || !stdout.trim()) return new Set();
+  return new Set(stdout.trim().split('\n').filter(Boolean));
+}
+
+async function saveConfig(pkgs) {
+  const content = [...pkgs].join('\n');
+  await exec(`printf '%s' '${content.replace(/'/g,"'\\''")}' > "${CONFIG}" 2>/dev/null`);
+}
+
+async function getActiveExemptions() {
+  const { stdout } = await exec('dumpsys deviceidle whitelist 2>/dev/null | grep "^user," | cut -d, -f2');
+  return new Set(stdout.trim().split('\n').filter(Boolean));
+}
+
+async function loadApps() {
+  const list = document.getElementById('appList');
+  try {
+    const [pkgsRes, saved, active] = await Promise.all([
+      exec('pm list packages -3 2>/dev/null'),
+      loadConfig(),
+      getActiveExemptions()
+    ]);
+
+    const pkgs = pkgsRes.stdout.trim().split('\n')
+      .map(l => l.replace('package:', '').trim())
+      .filter(Boolean)
+      .sort();
+
+    // Exempted = saved in config OR currently active in whitelist
+    allApps = pkgs.map(pkg => ({ pkg, exempted: saved.has(pkg) || active.has(pkg) }));
+
+    // Sort: exempted first
+    allApps.sort((a, b) => (b.exempted ? 1 : 0) - (a.exempted ? 1 : 0));
+    renderApps(allApps);
+  } catch(e) {
+    list.innerHTML = `<div style="color:var(--not-optimized);font-size:11px;padding:8px;">Error: ${escapeHtml(e)}</div>`;
+  }
+}
+
+function renderApps(apps) {
+  const list = document.getElementById('appList');
+  if (!apps.length) {
+    list.innerHTML = '<div style="color:var(--text-dim);font-size:11px;padding:8px;">No apps found</div>';
+    return;
+  }
+  list.innerHTML = apps.map(({ pkg, exempted }) => {
+    const safePkg = pkg.replace(/'/g, "\\'");
+    return `
+    <div class="app-item ${exempted ? 'exempted' : ''}" id="app-${CSS.escape(pkg)}">
+      <div class="app-item-info">
+        <div class="app-item-name">${escapeHtml(pkg.split('.').pop())}</div>
+        <div class="app-item-pkg">${escapeHtml(pkg)}</div>
+      </div>
+      <button class="app-toggle ${exempted ? 'on' : ''}" onclick="toggleApp('${safePkg}', this)"></button>
+    </div>`;
+  }).join('');
+}
+
+window.filterApps = function() {
+  const q = document.getElementById('appSearch').value.toLowerCase();
+  renderApps(q ? allApps.filter(a => a.pkg.toLowerCase().includes(q)) : allApps);
+};
+
+window.toggleApp = async function(pkg, btn) {
+  const item = document.getElementById('app-' + CSS.escape(pkg));
+  const app  = allApps.find(a => a.pkg === pkg);
+  if (!app) return;
+  btn.disabled = true;
+  const adding = !app.exempted;
+  try {
+    if (adding) {
+      await exec(`dumpsys deviceidle whitelist +${pkg} 2>/dev/null`);
+      await exec(`cmd appops set ${pkg} RUN_IN_BACKGROUND allow 2>/dev/null`);
+      await exec(`cmd appops set ${pkg} RUN_ANY_IN_BACKGROUND allow 2>/dev/null`);
+    } else {
+      await exec(`dumpsys deviceidle whitelist -${pkg} 2>/dev/null`);
+      await exec(`cmd appops set ${pkg} RUN_IN_BACKGROUND default 2>/dev/null`);
+      await exec(`cmd appops set ${pkg} RUN_ANY_IN_BACKGROUND default 2>/dev/null`);
+    }
+    app.exempted = adding;
+    btn.classList.toggle('on', adding);
+    item.classList.toggle('exempted', adding);
+    // Save updated config
+    const exempted = new Set(allApps.filter(a => a.exempted).map(a => a.pkg));
+    await saveConfig(exempted);
+    // Clear GMS cache after changing exemptions
+    await exec("cd /data/data && find . -type f -name '*gms*' -delete 2>/dev/null");
+    toast(adding ? `${pkg} exempted` : `${pkg} restored`);
+  } catch(e) { toast('Error: ' + e); }
+  btn.disabled = false;
+};
+
+// ── Init ──────────────────────────────────────────────────────
 window.checkStatus();
 window.checkFmdStatus();
 
-// Load version from module.prop
 (async function() {
   try {
-    const { stdout } = await exec("grep -E '^version=|^maintainer=' /data/adb/modules/universal-gms-doze/module.prop 2>/dev/null");
+    const { stdout } = await exec(`grep -E '^version=|^maintainer=' ${MOD}/module.prop 2>/dev/null`);
     const version    = (stdout.match(/^version=(.+)/m) || [])[1] || '';
     const maintainer = (stdout.match(/^maintainer=(.+)/m) || [])[1] || '';
     const parts = [];
     if (version)    parts.push('v' + version.trim() + '-debug');
     if (maintainer) parts.push('maintainer: ' + maintainer.trim());
     document.getElementById('subtitle').textContent = parts.join(' · ') || 'Universal GMS Doze';
-  } catch(e) {
-    document.getElementById('subtitle').textContent = 'Universal GMS Doze';
-  }
+  } catch(e) { document.getElementById('subtitle').textContent = 'Universal GMS Doze'; }
 })();
 
-const DEBUG_LOG = '/data/adb/modules/universal-gms-doze/debug.log';
+const DEBUG_LOG = MOD + '/debug.log';
 
 window.viewDebugLog = async function() {
   const el = document.getElementById('debugLog');
+  el.style.display = 'block';
   el.classList.add('visible');
   el.innerHTML = '<span class="info">Loading...</span>';
   try {
-    const { errno, stdout } = await exec(`cat "${DEBUG_LOG}" 2>/dev/null`);
-    if (errno !== 0 || stdout.trim() === '') {
-      el.innerHTML = '<span class="info">No debug log found. Install the debug build and reboot first.</span>';
-    } else {
-      el.innerHTML = escapeHtml(stdout);
-      // Scroll to bottom
-      el.scrollTop = el.scrollHeight;
-    }
-  } catch(e) {
-    el.innerHTML = `<span class="err">Error: ${escapeHtml(e)}</span>`;
-  }
+    const { errno, stdout } = await exec('cat "' + DEBUG_LOG + '" 2>/dev/null');
+    el.innerHTML = errno !== 0 || !stdout.trim()
+      ? '<span class="info">No debug log found. Install debug build and reboot first.</span>'
+      : escapeHtml(stdout);
+    el.scrollTop = el.scrollHeight;
+  } catch(e) { el.innerHTML = '<span class="err">Error: ' + escapeHtml(e) + '</span>'; }
 };
 
 window.exportDebugLog = async function() {
-  const output = document.getElementById('output');
-  output.classList.add('visible');
-  output.innerHTML = '<span class="info">Exporting...</span>';
   try {
     const dest = '/sdcard/ugd_debug.log';
-    const { errno, stdout, stderr } = await exec(`cp "${DEBUG_LOG}" "${dest}" 2>&1 && echo "Exported to ${dest}"`);
-    const out = (stdout || '') + (stderr || '');
-    output.innerHTML = `<span class="${errno === 0 ? 'ok' : 'err'}">${escapeHtml(out.trim())}</span>`;
-  } catch(e) {
-    output.innerHTML = `<span class="err">Error: ${escapeHtml(e)}</span>`;
-  }
+    const { errno, stdout, stderr } = await exec('cp "' + DEBUG_LOG + '" "' + dest + '" 2>&1 && echo "Exported to ' + dest + '"');
+    toast(errno === 0 ? 'Exported to ' + dest : 'Export failed');
+  } catch(e) { toast('Error: ' + e); }
 };
 
 window.clearDebugLog = async function() {
-  const output = document.getElementById('output');
-  const logEl  = document.getElementById('debugLog');
-  output.classList.add('visible');
-  output.innerHTML = '<span class="info">Clearing...</span>';
+  const el = document.getElementById('debugLog');
   try {
-    const { errno } = await exec(`rm -f "${DEBUG_LOG}" 2>/dev/null && echo "Log cleared."`);
-    output.innerHTML = errno === 0
-      ? '<span class="ok">Log cleared.</span>'
-      : '<span class="err">Failed to clear log.</span>';
-    logEl.innerHTML = '';
-    logEl.classList.remove('visible');
-  } catch(e) {
-    output.innerHTML = `<span class="err">Error: ${escapeHtml(e)}</span>`;
-  }
+    await exec('rm -f "' + DEBUG_LOG + '" 2>/dev/null');
+    el.innerHTML = '';
+    el.style.display = 'none';
+    el.classList.remove('visible');
+    toast('Log cleared.');
+  } catch(e) { toast('Error: ' + e); }
 };
+
 </script>
 
 </body>
