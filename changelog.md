@@ -1,20 +1,20 @@
 ## Change Log:
-- 1.9.7
+- 1.9.7   
 Add gsf to whitelist (possible notification fix)
 {Debug zip} Added more debug logs and another way to mount to try get work on OOS
 
-- 1.9.6
+- 1.9.6   
 Added more tags to find and patch GMS
 Added webui option to add apps for a new delay fix
 
-- 1.9.5
+- 1.9.5   
 Updated uninstall.sh to add clear cache
 Added debug zip
 
-- 1.9.4
+- 1.9.4   
 Added WebUI with GMS Patch status, Fix Delayed Messages, Find My Device toggle, and Force Re-apply Optimization
 
-- 1.9.3
+- 1.9.3   
 Fixed KernelSU compatibility (dynamic busybox path resolution)
 Fixed shebang in all scripts (removed hardcoded Magisk busybox path)
 Fixed syntax error in uninstall.sh
