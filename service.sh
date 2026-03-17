@@ -38,6 +38,9 @@ done
 # Add GMS to battery optimization (remove from Doze whitelist)
 dumpsys deviceidle whitelist -com.google.android.gms > $NLL 2>&1
 
+# Ensure GSF stays in whitelist (required for FCM connection during Doze)
+dumpsys deviceidle whitelist +com.google.android.gsf > $NLL 2>&1
+
 # Re-apply notification exemptions saved from WebUI
 CONF="/data/adb/modules/universal-gms-doze/exemptions.conf"
 if [ -f "$CONF" ]; then
