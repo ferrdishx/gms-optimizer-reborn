@@ -17,7 +17,7 @@ echo " UGD DEBUG - service.sh"
 echo " $(date)"
 echo "========================================"
 
-# ── Busybox ───────────────────────────────────────────────────
+# â”€â”€ Busybox â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 if [ -f /data/adb/ksu/bin/busybox ]; then
     BUSYBOX=/data/adb/ksu/bin/busybox
 elif [ -f /data/adb/magisk/busybox ]; then
@@ -32,7 +32,7 @@ echo "[ENV] Android: $(getprop ro.build.version.release)"
 echo "[ENV] Kernel: $(uname -r)"
 echo "[ENV] SELinux: $(getenforce 2>/dev/null || echo unknown)"
 
-# ── Partition mounts ──────────────────────────────────────────
+# â”€â”€ Partition mounts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo "[PARTITIONS] Mount state at boot:"
 mount | grep -E "/(system|product|vendor|system_ext)" | head -20
 echo "[PARTITIONS] Symlink state:"
@@ -44,7 +44,7 @@ for P in /system/product /product /system/vendor /vendor /system/system_ext /sys
     fi
 done
 
-# ── Bind mount state ──────────────────────────────────────────
+# â”€â”€ Bind mount state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo "[BIND] /proc/mounts entries for google.xml / sysconfig:"
 cat /proc/mounts | grep -E "google|sysconfig|product" | head -10
 
@@ -53,7 +53,7 @@ for F in /product/etc/sysconfig/google.xml /system/etc/sysconfig/google.xml; do
     if [ -f "$F" ]; then
         echo "  FILE: $F"
         echo "  GMS entries:"
-        grep -E "com.google.android.gms" "$F" 2>/dev/null || echo "  (none — correctly patched)"
+        grep -E "com.google.android.gms" "$F" 2>/dev/null || echo "  (none â€” correctly patched)"
         echo "  Is bind mounted:"
         cat /proc/mounts | grep "$F" || echo "  (no bind mount)"
         echo "  Inode: $(stat -c '%i' $F 2>/dev/null)"
@@ -66,17 +66,17 @@ for F in /data/adb/modules/universal-gms-doze/patched/*.xml 2>/dev/null; do
     [ -f "$F" ] || continue
     echo "  FILE: $F"
     echo "  GMS entries:"
-    grep -E "com.google.android.gms" "$F" 2>/dev/null || echo "  (none — correctly patched)"
+    grep -E "com.google.android.gms" "$F" 2>/dev/null || echo "  (none â€” correctly patched)"
 done
 
-# ── Module state ──────────────────────────────────────────────
+# â”€â”€ Module state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo "[MODULE] Module directory contents:"
 ls -laR /data/adb/modules/universal-gms-doze/ 2>/dev/null | head -40
 
 echo "[MODULE] google.xml in module:"
 find /data/adb/modules/universal-gms-doze/ -name "google.xml" 2>/dev/null | while read F; do
     echo "  FOUND: $F"
-    grep -E "com.google.android.gms" "$F" || echo "  (none — correctly patched)"
+    grep -E "com.google.android.gms" "$F" || echo "  (none â€” correctly patched)"
 done
 
 echo "[MODULE] Metamodule mnt (if exists):"
@@ -85,12 +85,12 @@ for MNT in /data/adb/metamodule/mnt /data/adb/mountify/mnt; do
         echo "  $MNT/universal-gms-doze:"
         find "$MNT/universal-gms-doze" -name "google.xml" 2>/dev/null | while read F; do
             echo "    FOUND: $F"
-            grep -E "com.google.android.gms" "$F" || echo "    (none — correctly patched)"
+            grep -E "com.google.android.gms" "$F" || echo "    (none â€” correctly patched)"
         done
     fi
 done
 
-# ── Doze whitelist ────────────────────────────────────────────
+# â”€â”€ Doze whitelist â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 GMS="com.google.android.gms"
 GC1="auth.managed.admin.DeviceAdminReceiver"
 GC2="mdm.receivers.MdmDeviceAdminReceiver"
@@ -112,7 +112,7 @@ for U in $(ls /data/user 2>/dev/null); do
     done
 done
 
-# ── Re-apply exemptions ───────────────────────────────────────
+# â”€â”€ Re-apply exemptions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 CONF="/data/adb/modules/universal-gms-doze/exemptions.conf"
 if [ -f "$CONF" ]; then
     echo "[EXEMPT] Re-applying from $CONF:"
@@ -129,13 +129,13 @@ else
     echo "[EXEMPT] No exemptions.conf found"
 fi
 
-# ── Final GMS state ───────────────────────────────────────────
+# â”€â”€ Final GMS state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo "[RESULT] GMS optimization status:"
 STATUS=$(dumpsys deviceidle whitelist 2>/dev/null | grep com.google.android.gms | head -1)
 if [ -z "$STATUS" ]; then
-    echo "  ✓ GMS is OPTIMIZED"
+    echo "  âœ“ GMS is OPTIMIZED"
 else
-    echo "  ✗ GMS is NOT OPTIMIZED: $STATUS"
+    echo "  âœ— GMS is NOT OPTIMIZED: $STATUS"
 fi
 
 echo "[RESULT] Full Doze whitelist:"

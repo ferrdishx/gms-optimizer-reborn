@@ -117,7 +117,7 @@ PATCH_MX() {
 PATCH_SX && PATCH_MX
 
 # Merge top-level partition dirs into system/ for Magisk and KSU without metamodule
-# meta-overlayfs expects product/vendor/system_ext at module root — skip merge if present
+# meta-overlayfs expects product/vendor/system_ext at module root â€” skip merge if present
 if [ -n "$MAGISK_VER_CODE" ] && [ -z "$KSU" ] && [ -z "$APATCH" ]; then
     MERGE_DIRS
 elif [ -n "$KSU" ] && [ ! -L /data/adb/metamodule ] && [ ! -d /data/adb/metamodule ]; then

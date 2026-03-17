@@ -23,7 +23,7 @@ STR2="allow-ignore-location-settings package=$GMS0"
 STR3="allow-in-power-save package=$GMS0"
 STR4="allow-in-data-usage-save package=$GMS0"
 
-# â”€â”€ Partition state at post-fs-data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# Ã¢â€â‚¬Ã¢â€â‚¬ Partition state at post-fs-data Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 echo "[PARTITIONS] Mount state at post-fs-data:"
 mount | grep -E "/(system|product|vendor|system_ext)" | head -20
 
@@ -38,7 +38,7 @@ for P in /system/product /product /system/vendor /vendor /system/system_ext /sys
     fi
 done
 
-# â”€â”€ google.xml state at post-fs-data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# Ã¢â€â‚¬Ã¢â€â‚¬ google.xml state at post-fs-data Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 echo "[XML-STATE] google.xml state BEFORE bind mount:"
 for F in /product/etc/sysconfig/google.xml /system/etc/sysconfig/google.xml /system_ext/etc/sysconfig/google.xml; do
     if [ -f "$F" ]; then
@@ -53,7 +53,7 @@ for F in /product/etc/sysconfig/google.xml /system/etc/sysconfig/google.xml /sys
     fi
 done
 
-# â”€â”€ Patch conflicting module XMLs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# Ã¢â€â‚¬Ã¢â€â‚¬ Patch conflicting module XMLs Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 echo "[MOD-XML] Searching conflicting module XMLs..."
 find /data/adb/* -type f -iname "*.xml" -print 2>/dev/null |
 while IFS= read -r XML; do
@@ -67,7 +67,7 @@ while IFS= read -r XML; do
     fi
 done
 
-# â”€â”€ Bind mount â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# Ã¢â€â‚¬Ã¢â€â‚¬ Bind mount Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 PATCH_DIR="$MODDIR/patched"
 echo "[BIND] Creating patch dir: $PATCH_DIR"
 mkdir -p "$PATCH_DIR"
@@ -102,7 +102,7 @@ for SRC in \
     cat "$DST"
 
     echo "[BIND]   Remaining GMS entries in patched file:"
-    grep -E "com.google.android.gms" "$DST" 2>/dev/null || echo "[BIND]   (none â€” correctly patched)"
+    grep -E "com.google.android.gms" "$DST" 2>/dev/null || echo "[BIND]   (none Ã¢â‚¬â€ correctly patched)"
 
     echo "[BIND]   Attempting mount --bind $DST $SRC"
     mount --bind "$DST" "$SRC"
@@ -110,15 +110,15 @@ for SRC in \
     echo "[BIND]   mount result: $MOUNT_RESULT"
 
     if [ $MOUNT_RESULT -eq 0 ]; then
-        echo "[BIND]   SUCCESS â€” verifying:"
+        echo "[BIND]   SUCCESS Ã¢â‚¬â€ verifying:"
         echo "[BIND]   Inode after bind (should differ from original):"
         stat -c '%i' "$SRC" 2>/dev/null
         echo "[BIND]   GMS entries in mounted file:"
-        grep -E "com.google.android.gms" "$SRC" 2>/dev/null || echo "[BIND]   (none â€” bind mount working)"
+        grep -E "com.google.android.gms" "$SRC" 2>/dev/null || echo "[BIND]   (none Ã¢â‚¬â€ bind mount working)"
         echo "[BIND]   /proc/mounts entry:"
         cat /proc/mounts | grep "$SRC" || echo "[BIND]   (not in /proc/mounts)"
     else
-        echo "[BIND]   FAILED â€” mount --bind returned $MOUNT_RESULT"
+        echo "[BIND]   FAILED Ã¢â‚¬â€ mount --bind returned $MOUNT_RESULT"
         echo "[BIND]   Trying alternative: mount -o bind"
         mount -o bind "$DST" "$SRC"
         echo "[BIND]   Alternative mount result: $?"
