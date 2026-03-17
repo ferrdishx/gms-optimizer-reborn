@@ -13,7 +13,8 @@
 > **KernelSU 3.x (32302+) users:** KernelSU 3.x introduced a new [Metamodule](https://kernelsu.org/guide/metamodule.html) system. Without a metamodule installed, **modules will NOT be mounted**. Before installing this module, you must first install [meta-overlayfs](https://github.com/KernelSU-Modules-Repo/meta-overlayfs/releases) or another compatible metamodule.
 >
 > **KernelSU legacy (22091 and below):** Works out of the box, no metamodule required.
-
+>
+> **OnePlus OxygenOS 16 users:** it appears that com.google.android.gms cannot be modified because the system won't allow it; investigation in progress
 ## WebUI
 The module includes a built-in WebUI accessible from the KernelSU module page.
 
