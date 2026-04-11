@@ -3,30 +3,23 @@
 # Universal GMS Doze - DEBUG BUILD
 # Logs everything to module folder debug.log
 #
-
 MODDIR=${0%/*}
 LOG="$MODDIR/debug.log"
 mkdir -p "$(dirname $LOG)"
 exec >> "$LOG" 2>&1
 set -x
-
 echo "========================================"
 echo " UGD DEBUG - post-fs-data.sh"
 echo " $(date)"
 echo "========================================"
-
 NULL="/dev/null"
-
 GMS0="\"com.google.android.gms\""
 STR1="allow-unthrottled-location package=$GMS0"
 STR2="allow-ignore-location-settings package=$GMS0"
 STR3="allow-in-power-save package=$GMS0"
 STR4="allow-in-data-usage-save package=$GMS0"
-
-# Ã¢â€â‚¬Ã¢â€â‚¬ Partition state at post-fs-data Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 echo "[PARTITIONS] Mount state at post-fs-data:"
 mount | grep -E "/(system|product|vendor|system_ext)" | head -20
-
 echo "[PARTITIONS] Symlink check:"
 for P in /system/product /product /system/vendor /vendor /system/system_ext /system_ext; do
     if [ -L "$P" ]; then
@@ -37,8 +30,6 @@ for P in /system/product /product /system/vendor /vendor /system/system_ext /sys
         echo "  $P [NOT FOUND]"
     fi
 done
-
-# Ã¢â€â‚¬Ã¢â€â‚¬ google.xml state at post-fs-data Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 echo "[XML-STATE] google.xml state BEFORE bind mount:"
 for F in /product/etc/sysconfig/google.xml /system/etc/sysconfig/google.xml /system_ext/etc/sysconfig/google.xml; do
     if [ -f "$F" ]; then
@@ -52,8 +43,6 @@ for F in /product/etc/sysconfig/google.xml /system/etc/sysconfig/google.xml /sys
         echo "  NOT FOUND: $F"
     fi
 done
-
-# Ã¢â€â‚¬Ã¢â€â‚¬ Patch conflicting module XMLs Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 echo "[MOD-XML] Searching conflicting module XMLs..."
 find /data/adb/* -type f -iname "*.xml" -print 2>/dev/null |
 while IFS= read -r XML; do
@@ -66,70 +55,54 @@ while IFS= read -r XML; do
         cat "$XML"
     fi
 done
-
-# Ã¢â€â‚¬Ã¢â€â‚¬ Bind mount Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 PATCH_DIR="$MODDIR/patched"
 echo "[BIND] Creating patch dir: $PATCH_DIR"
 mkdir -p "$PATCH_DIR"
-
 for SRC in \
     /product/etc/sysconfig/google.xml \
     /system/etc/sysconfig/google.xml \
     /system_ext/etc/sysconfig/google.xml; do
-
     echo "[BIND] Checking: $SRC"
-
     if [ ! -f "$SRC" ]; then
         echo "[BIND]   NOT FOUND, skipping"
         continue
     fi
-
     if ! grep -qE "$STR1|$STR2|$STR3|$STR4" "$SRC" 2>/dev/null; then
         echo "[BIND]   No GMS entries found, skipping"
         continue
     fi
-
     FNAME="$(echo "$SRC" | tr '/' '_').xml"
     DST="$PATCH_DIR/$FNAME"
-
     echo "[BIND]   Copying $SRC -> $DST"
     cp -f "$SRC" "$DST"
-
     echo "[BIND]   Patching $DST"
     sed -i "/$STR1/d;/$STR2/d;/$STR3/d;/$STR4/d" "$DST"
-
     echo "[BIND]   Patched content:"
     cat "$DST"
-
     echo "[BIND]   Remaining GMS entries in patched file:"
-    grep -E "com.google.android.gms" "$DST" 2>/dev/null || echo "[BIND]   (none Ã¢â‚¬â€ correctly patched)"
-
+    grep -E "com.google.android.gms" "$DST" 2>/dev/null || echo "[BIND]   (none - correctly patched)"
     echo "[BIND]   Attempting mount --bind $DST $SRC"
     mount --bind "$DST" "$SRC"
     MOUNT_RESULT=$?
     echo "[BIND]   mount result: $MOUNT_RESULT"
-
     if [ $MOUNT_RESULT -eq 0 ]; then
-        echo "[BIND]   SUCCESS Ã¢â‚¬â€ verifying:"
+        echo "[BIND]   SUCCESS - verifying:"
         echo "[BIND]   Inode after bind (should differ from original):"
         stat -c '%i' "$SRC" 2>/dev/null
         echo "[BIND]   GMS entries in mounted file:"
-        grep -E "com.google.android.gms" "$SRC" 2>/dev/null || echo "[BIND]   (none Ã¢â‚¬â€ bind mount working)"
+        grep -E "com.google.android.gms" "$SRC" 2>/dev/null || echo "[BIND]   (none - bind mount working)"
         echo "[BIND]   /proc/mounts entry:"
         cat /proc/mounts | grep "$SRC" || echo "[BIND]   (not in /proc/mounts)"
     else
-        echo "[BIND]   FAILED Ã¢â‚¬â€ mount --bind returned $MOUNT_RESULT"
+        echo "[BIND]   FAILED - mount --bind returned $MOUNT_RESULT"
         echo "[BIND]   Trying alternative: mount -o bind"
         mount -o bind "$DST" "$SRC"
         echo "[BIND]   Alternative mount result: $?"
     fi
 done
-
 echo "[BIND] Final /proc/mounts state:"
 cat /proc/mounts | grep -E "google|sysconfig|product" | head -10
-
 echo "[BIND] patched/ directory:"
 ls -la "$PATCH_DIR" 2>/dev/null
-
 echo "[DEBUG] post-fs-data.sh completed. $(date)"
 echo "========================================"

@@ -4,8 +4,6 @@
 # open-source loving GL-DP and all contributors;
 # Patches Google Play services app and certain processes/services to be able to use battery optimization
 #
-
-# Search and patch any conflicting modules (if present)
 {
 GMS0="\"com.google.android.gms\""
 STR1="allow-unthrottled-location package=$GMS0"

@@ -8,12 +8,8 @@ ID="$(id -u)"
 NULL="/dev/null"
 GMS="com.google.android.gms"
 { R="\e[1;31m" G="\e[1;32m" Y="\e[1;33m" N="\e[0m"; } 2> $NULL
-
 CHK_OPT() {
-    # Android 15 changed the whitelist output format; handle both formats
     local OPT
-    # Format 1 (older): system-excidle,com.google.android.gms
-    # Format 2 (Android 15+): system-excidle,0,com.google.android.gms
     OPT="$(dumpsys deviceidle whitelist 2>/dev/null | grep "$GMS" | head -1)"
     if [ -z "$OPT" ]; then
         echo -e "$G $1 Optimized. $N"
@@ -21,7 +17,6 @@ CHK_OPT() {
         echo -e "$R $1 Not Optimized. $N"
     fi
 }
-
 case $ID in
     0)
         CHK_OPT "Google Play services is"

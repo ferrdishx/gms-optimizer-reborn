@@ -1,6 +1,6 @@
 {
     "version": "1.9.8",
     "versionCode": 198,
-    "zipUrl": "https://github.com/MarsPatrick/universal-gms-doze/releases/download/1.9.8/gms_1.9.8.zip",
+    "zipUrl": "https://github.com/MarsPatrick/universal-gms-doze/releases/download/1.9.8/gms_1.9.8-debug.zip",
     "changelog": "https://raw.githubusercontent.com/MarsPatrick/universal-gms-doze/master/changelog.md"
 }

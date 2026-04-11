@@ -5,5 +5,5 @@ versionCode=198
 author=gloeyisk
 maintainer=MarsPatrick
 description=Patches Google Play services app and certain processes/services to be able to use battery optimizations
-updateJson=https://raw.githubusercontent.com/MarsPatrick/universal-gms-doze/master/module.json
+updateJson=https://raw.githubusercontent.com/MarsPatrick/universal-gms-doze/master/module-debug.json
 support_ksu=true
