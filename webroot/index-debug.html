@@ -611,7 +611,7 @@ window.checkFmdStatus();
   } catch(e) { document.getElementById('subtitle').textContent = 'Universal GMS Doze'; }
 })();
 
-const DEBUG_LOG = MOD + '/debug.log';
+const DEBUG_LOG = '/data/adb/ugd_debug.log';
 
 window.viewDebugLog = async function() {
   const el = document.getElementById('debugLog');

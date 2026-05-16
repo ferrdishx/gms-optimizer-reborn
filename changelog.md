@@ -1,4 +1,17 @@
 ## Change Log:
+- 1.9.9
+Improved partition handling and expanded OEM partition support for better compatibility
+Cleaned up and simplified XML patching logic
+Fixed encoding issues in reboot messages
+Improved Doze persistence across reboots
+Enhanced GMS whitelist removal on newer Android versions
+Fixed debug log path
+Reduced unnecessary patching and false warning messages
+Improved uninstall cleanup and restoration behavior
+
+- 1.9.8
+Added a method to force patch on oneplus devices (and others?), thanks to @xizt159
+
 - 1.9.7   
 Add gsf to whitelist (possible notification fix)
 {Debug zip} Added more debug logs and another way to mount to try get work on OOS

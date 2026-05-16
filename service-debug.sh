@@ -1,128 +1,170 @@
 #!/system/bin/sh
 #
-# Universal GMS Doze - DEBUG BUILD
-# Logs everything to /data/adb/modules/universal-gms-doze/debug.log
+# Universal GMS Doze by the
+# open-source loving GL-DP and all contributors;
+# Patches Google Play services app and certain processes/services to be able to use battery optimization
 #
-LOG="/data/adb/modules/universal-gms-doze/debug.log"
-mkdir -p "$(dirname $LOG)"
-(
-until [ "$(resetprop sys.boot_completed 2>/dev/null || getprop sys.boot_completed)" = "1" ]; do
-    sleep 10
-done
-echo "========================================"
-echo " UGD DEBUG - service.sh"
-echo " $(date)"
-echo "========================================"
+# DEBUG VERSION - appends to /data/adb/ugd_debug.log
+#
+
+DEBUG_LOG="/data/adb/ugd_debug.log"
+mkdir -p "$(dirname "$DEBUG_LOG")"
+
+dbg() { echo "[DBG][service][$(date '+%H:%M:%S')] $1" >> "$DEBUG_LOG"; }
+
 if [ -f /data/adb/ksu/bin/busybox ]; then
     BUSYBOX=/data/adb/ksu/bin/busybox
+    dbg "BusyBox: KSU ($BUSYBOX)"
 elif [ -f /data/adb/magisk/busybox ]; then
     BUSYBOX=/data/adb/magisk/busybox
+    dbg "BusyBox: Magisk ($BUSYBOX)"
 else
     BUSYBOX="$(which busybox 2>/dev/null)"
+    dbg "BusyBox: system (${BUSYBOX:-not found})"
 fi
-echo "[ENV] busybox: ${BUSYBOX:-not found}"
-echo "[ENV] Device: $(getprop ro.product.device)"
-echo "[ENV] ROM: $(getprop ro.build.display.id)"
-echo "[ENV] Android: $(getprop ro.build.version.release)"
-echo "[ENV] Kernel: $(uname -r)"
-echo "[ENV] SELinux: $(getenforce 2>/dev/null || echo unknown)"
-echo "[PARTITIONS] Mount state at boot:"
-mount | grep -E "/(system|product|vendor|system_ext)" | head -20
-echo "[PARTITIONS] Symlink state:"
-for P in /system/product /product /system/vendor /vendor /system/system_ext /system_ext; do
-    if [ -L "$P" ]; then
-        echo "  $P -> $(readlink $P) [SYMLINK]"
-    elif [ -d "$P" ]; then
-        echo "  $P [DIR]"
-    fi
-done
-echo "[BIND] /proc/mounts entries for google.xml / sysconfig:"
-cat /proc/mounts | grep -E "google|sysconfig|product" | head -10
-echo "[BIND] google.xml state at runtime:"
-for F in /product/etc/sysconfig/google.xml /system/etc/sysconfig/google.xml; do
-    if [ -f "$F" ]; then
-        echo "  FILE: $F"
-        echo "  GMS entries:"
-        grep -E "com.google.android.gms" "$F" 2>/dev/null || echo "  (none ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â correctly patched)"
-        echo "  Is bind mounted:"
-        cat /proc/mounts | grep "$F" || echo "  (no bind mount)"
-        echo "  Inode: $(stat -c '%i' $F 2>/dev/null)"
-    fi
-done
-echo "[BIND] Module patched/ directory:"
-ls -la /data/adb/modules/universal-gms-doze/patched/ 2>/dev/null || echo "  (not found)"
-for F in /data/adb/modules/universal-gms-doze/patched/*.xml 2>/dev/null; do
-    [ -f "$F" ] || continue
-    echo "  FILE: $F"
-    echo "  GMS entries:"
-    grep -E "com.google.android.gms" "$F" 2>/dev/null || echo "  (none ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â correctly patched)"
-done
-echo "[MODULE] Module directory contents:"
-ls -laR /data/adb/modules/universal-gms-doze/ 2>/dev/null | head -40
-echo "[MODULE] google.xml in module:"
-find /data/adb/modules/universal-gms-doze/ -name "google.xml" 2>/dev/null | while read F; do
-    echo "  FOUND: $F"
-    grep -E "com.google.android.gms" "$F" || echo "  (none ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â correctly patched)"
-done
-echo "[MODULE] Metamodule mnt (if exists):"
-for MNT in /data/adb/metamodule/mnt /data/adb/mountify/mnt; do
-    if [ -d "$MNT/universal-gms-doze" ]; then
-        echo "  $MNT/universal-gms-doze:"
-        find "$MNT/universal-gms-doze" -name "google.xml" 2>/dev/null | while read F; do
-            echo "    FOUND: $F"
-            grep -E "com.google.android.gms" "$F" || echo "    (none ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â correctly patched)"
-        done
-    fi
-done
-GMS="com.google.android.gms"
-GC1="auth.managed.admin.DeviceAdminReceiver"
-GC2="mdm.receivers.MdmDeviceAdminReceiver"
-NLL="/dev/null"
-echo "[DOZE] Removing GMS from whitelist..."
-RESULT=$(dumpsys deviceidle whitelist -com.google.android.gms 2>&1)
-echo "  result=$RESULT"
-echo "[DOZE] Adding GSF to whitelist (required for FCM during Doze)..."
-RESULT_GSF=$(dumpsys deviceidle whitelist +com.google.android.gsf 2>&1)
-echo "  result=$RESULT_GSF"
-echo "[DOZE] Disabling device administrators..."
-for U in $(ls /data/user 2>/dev/null); do
-    for C in $GC1 $GC2; do
-        R=$(pm disable --user $U "$GMS/$GMS.$C" 2>&1)
-        echo "  user=$U component=$C result=$R"
+[ -n "$BUSYBOX" ] && alias busybox="$BUSYBOX"
+
+(
+    dbg "=== service.sh background subshell start ==="
+
+    # Wait for boot
+    WAIT_ITER=0
+    until [ "$(resetprop sys.boot_completed 2>/dev/null || getprop sys.boot_completed)" = "1" ] &&
+          [ -d /sdcard ]; do
+        sleep 10
+        WAIT_ITER=$((WAIT_ITER + 1))
+        [ $((WAIT_ITER % 6)) -eq 0 ] && dbg "Still waiting for boot... (${WAIT_ITER}x10s)"
     done
-done
-CONF="/data/adb/modules/universal-gms-doze/exemptions.conf"
-if [ -f "$CONF" ]; then
-    echo "[EXEMPT] Re-applying from $CONF:"
-    while IFS= read -r PKG; do
-        [ -z "$PKG" ] && continue
-        R1=$(dumpsys deviceidle whitelist +$PKG 2>&1)
-        R2=$(cmd appops set $PKG RUN_IN_BACKGROUND allow 2>&1)
-        R3=$(cmd appops set $PKG RUN_ANY_IN_BACKGROUND allow 2>&1)
-        echo "  $PKG | whitelist=$R1 | bg=$R2 | anybg=$R3"
-    done < "$CONF"
-    echo "[EXEMPT] Clearing GMS cache..."
-    cd /data/data && find . -type f -name '*gms*' -delete
-else
-    echo "[EXEMPT] No exemptions.conf found"
-fi
-echo "[RESULT] GMS optimization status:"
-STATUS=$(dumpsys deviceidle whitelist 2>/dev/null | grep com.google.android.gms | head -1)
-if [ -z "$STATUS" ]; then
-    echo "  GMS is OPTIMIZED"
-else
-    echo "  GMS is NOT OPTIMIZED: $STATUS"
-fi
-echo "[RESULT] Full Doze whitelist:"
-dumpsys deviceidle whitelist 2>/dev/null
-echo "[RESULT] GMS processes running:"
-ps -A 2>/dev/null | grep com.google.android.gms || ps 2>/dev/null | grep com.google.android.gms
-echo "[RESULT] Doze mState:"
-dumpsys deviceidle 2>/dev/null | grep -E "mState|Whitelist|com.google.android.gms" | head -20
-echo "[RESULT] GMS package info:"
-pm dump com.google.android.gms 2>/dev/null | grep -E "versionName|enabled|stopped|suspended|userId" | head -20
-echo "[RESULT] GMS DeviceAdminReceiver state:"
-pm query-receivers --components -a android.app.action.DEVICE_ADMIN_ENABLED 2>/dev/null | grep gms
-echo "[DEBUG] service.sh completed. $(date)"
-echo "========================================"
-) >> "$LOG" 2>&1 &
+    dbg "Boot completed after ~$((WAIT_ITER * 10))s"
+
+    GMS="com.google.android.gms"
+    GC1="auth.managed.admin.DeviceAdminReceiver"
+    GC2="mdm.receivers.MdmDeviceAdminReceiver"
+    NLL="/dev/null"
+
+    # --- System state snapshot ---
+    dbg "--- System state at boot ---"
+    dbg "Android API: $(getprop ro.build.version.sdk)"
+    dbg "Device: $(getprop ro.product.model) / $(getprop ro.product.device)"
+
+    # --- Overlay/mount verification ---
+    dbg "--- Overlay mount state ---"
+    MODDIR="/data/adb/modules/universal-gms-doze"
+    dbg "Module dir: $MODDIR"
+    find "$MODDIR" -name "*.xml" 2>/dev/null | while read f; do
+        dbg "  Overlay file: $f"
+        # Check if corresponding system path is bind-mounted
+        SYS_PATH="${f#$MODDIR}"
+        dbg "  -> system path: $SYS_PATH"
+        if [ -f "$SYS_PATH" ]; then
+            OVERLAY_ACTIVE="NO"
+            if grep -qE "com\.google\.android\.gms|allow-in-power-save" "$SYS_PATH" 2>/dev/null; then
+                OVERLAY_ACTIVE="NO (GMS still in system file)"
+            else
+                OVERLAY_ACTIVE="YES (GMS absent from system file)"
+            fi
+            dbg "  -> Overlay active: $OVERLAY_ACTIVE"
+        else
+            dbg "  -> System path not found: $SYS_PATH"
+        fi
+    done
+    dbg "--- end overlay state ---"
+
+    # --- Whitelist BEFORE ---
+    dbg "--- deviceidle whitelist BEFORE ---"
+    dumpsys deviceidle whitelist 2>/dev/null >> "$DEBUG_LOG"
+    dbg "--- end whitelist before ---"
+    dbg "--- deviceidle full dump (relevant sections) BEFORE ---"
+    dumpsys deviceidle 2>/dev/null | grep -A2 -B2 "$GMS" >> "$DEBUG_LOG"
+    dbg "--- end deviceidle dump ---"
+
+    # --- Device admin receivers ---
+    dbg "--- Disabling device admin receivers ---"
+    USERS="$(ls /data/user 2>/dev/null)"
+    dbg "Users found: $USERS"
+    for U in $USERS; do
+        for C in $GC1 $GC2; do
+            RESULT="$(pm disable --user "$U" "$GMS/$GMS.$C" 2>&1)"
+            dbg "  pm disable --user $U $GMS/$GMS.$C -> $RESULT"
+        done
+    done
+    dbg "--- end device admin ---"
+
+    # --- Whitelist removal ---
+    dbg "--- Removing GMS from whitelists ---"
+
+    OUT="$(dumpsys deviceidle whitelist -"$GMS" 2>&1)"
+    dbg "  user-tier removal: $OUT"
+
+    OUT="$(cmd deviceidle sys-whitelist -"$GMS" 2>&1)"
+    dbg "  sys-whitelist removal: $OUT"
+
+    OUT="$(cmd deviceidle except-idle-whitelist -"$GMS" 2>&1)"
+    dbg "  except-idle-whitelist removal: $OUT"
+
+    # Keep GSF whitelisted
+    OUT="$(dumpsys deviceidle whitelist +com.google.android.gsf 2>&1)"
+    dbg "  GSF whitelist add: $OUT"
+
+    dbg "--- end whitelist removal ---"
+
+    # --- Whitelist AFTER ---
+    dbg "--- deviceidle whitelist AFTER ---"
+    dumpsys deviceidle whitelist 2>/dev/null >> "$DEBUG_LOG"
+    dbg "--- end whitelist after ---"
+
+    # --- GMS pm state ---
+    dbg "--- GMS package state ---"
+    pm dump "$GMS" 2>/dev/null | grep -E "enabled|disabled|stopped|pkgFlags|userId|receivers" >> "$DEBUG_LOG"
+    dbg "--- end GMS package state ---"
+
+    # --- Exemptions ---
+    CONF="/data/adb/modules/universal-gms-doze/exemptions.conf"
+    if [ -f "$CONF" ]; then
+        dbg "--- Processing exemptions.conf ---"
+        while IFS= read -r PKG; do
+            [ -z "$PKG" ] && continue
+            dbg "  Exempting: $PKG"
+            OUT1="$(dumpsys deviceidle whitelist +"$PKG" 2>&1)"
+            OUT2="$(cmd appops set "$PKG" RUN_IN_BACKGROUND allow 2>&1)"
+            OUT3="$(cmd appops set "$PKG" RUN_ANY_IN_BACKGROUND allow 2>&1)"
+            dbg "    whitelist: $OUT1"
+            dbg "    RUN_IN_BACKGROUND: $OUT2"
+            dbg "    RUN_ANY_IN_BACKGROUND: $OUT3"
+        done < "$CONF"
+        dbg "--- end exemptions ---"
+    else
+        dbg "No exemptions.conf found"
+    fi
+
+    # --- GMS data cleanup ---
+    dbg "--- GMS data file cleanup ---"
+    cd /data/data
+    GMS_FILES="$(find . -type f -name '*gms*' 2>/dev/null)"
+    if [ -n "$GMS_FILES" ]; then
+        dbg "Files found for deletion:"
+        echo "$GMS_FILES" >> "$DEBUG_LOG"
+        find . -type f -name '*gms*' -delete > $NLL 2>&1
+        dbg "Deletion complete"
+    else
+        dbg "No GMS data files found"
+    fi
+    dbg "--- end GMS data cleanup ---"
+
+    # --- deviceidle.xml final state ---
+    DEVICEIDLE_XML="/data/system/deviceidle.xml"
+    dbg "--- $DEVICEIDLE_XML final state ---"
+    if [ -f "$DEVICEIDLE_XML" ]; then
+        GMS_WL="$(grep -c "<wl n=\"$GMS\"" "$DEVICEIDLE_XML" 2>/dev/null || echo 0)"
+        GMS_UNWL="$(grep -c "<un-wl n=\"$GMS\"" "$DEVICEIDLE_XML" 2>/dev/null || echo 0)"
+        dbg "  <wl> count: $GMS_WL"
+        dbg "  <un-wl> count: $GMS_UNWL"
+    else
+        dbg "  File not present"
+    fi
+    dbg "--- end deviceidle.xml state ---"
+
+    dbg "=== service.sh complete ==="
+
+    exit 0
+) &

@@ -1,108 +1,110 @@
 #!/system/bin/sh
 #
-# Universal GMS Doze - DEBUG BUILD
-# Logs everything to module folder debug.log
+# Universal GMS Doze by the
+# open-source loving GL-DP and all contributors;
+# Patches Google Play services app and certain processes/services to be able to use battery optimization
 #
-MODDIR=${0%/*}
-LOG="$MODDIR/debug.log"
-mkdir -p "$(dirname $LOG)"
-exec >> "$LOG" 2>&1
-set -x
-echo "========================================"
-echo " UGD DEBUG - post-fs-data.sh"
-echo " $(date)"
-echo "========================================"
-NULL="/dev/null"
-GMS0="\"com.google.android.gms\""
-STR1="allow-unthrottled-location package=$GMS0"
-STR2="allow-ignore-location-settings package=$GMS0"
-STR3="allow-in-power-save package=$GMS0"
-STR4="allow-in-data-usage-save package=$GMS0"
-echo "[PARTITIONS] Mount state at post-fs-data:"
-mount | grep -E "/(system|product|vendor|system_ext)" | head -20
-echo "[PARTITIONS] Symlink check:"
-for P in /system/product /product /system/vendor /vendor /system/system_ext /system_ext; do
-    if [ -L "$P" ]; then
-        echo "  $P -> $(readlink $P) [SYMLINK]"
-    elif [ -d "$P" ]; then
-        echo "  $P [DIR]"
-    else
-        echo "  $P [NOT FOUND]"
-    fi
-done
-echo "[XML-STATE] google.xml state BEFORE bind mount:"
-for F in /product/etc/sysconfig/google.xml /system/etc/sysconfig/google.xml /system_ext/etc/sysconfig/google.xml; do
-    if [ -f "$F" ]; then
-        echo "  EXISTS: $F"
-        echo "  Inode: $(stat -c '%i' "$F" 2>/dev/null)"
-        echo "  GMS entries:"
-        grep -E "com.google.android.gms" "$F" 2>/dev/null || echo "  (none)"
-        echo "  Full content:"
-        cat "$F"
-    else
-        echo "  NOT FOUND: $F"
-    fi
-done
-echo "[MOD-XML] Searching conflicting module XMLs..."
+# DEBUG VERSION - appends to /data/adb/ugd_debug.log
+#
+
+DEBUG_LOG="/data/adb/ugd_debug.log"
+mkdir -p "$(dirname "$DEBUG_LOG")"
+
+dbg() { echo "[DBG][post-fs-data][$(date '+%H:%M:%S')] $1" >> "$DEBUG_LOG"; }
+
+dbg "=== post-fs-data.sh start ==="
+dbg "Date: $(date)"
+
+{
+    GMS_PKG="com.google.android.gms"
+    GMS0="\"$GMS_PKG\""
+    STR1="allow-unthrottled-location package=$GMS0"
+    STR2="allow-ignore-location-settings package=$GMS0"
+    STR3="allow-in-power-save package=$GMS0"
+    STR4="allow-in-data-usage-save package=$GMS0"
+    NULL="/dev/null"
+}
+
+# --- Log mount state at post-fs-data time ---
+dbg "--- /proc/mounts at post-fs-data ---"
+cat /proc/mounts >> "$DEBUG_LOG" 2>/dev/null
+dbg "--- end mounts ---"
+
+# --- Log current overlay files present in module dir ---
+MODDIR="/data/adb/modules/universal-gms-doze"
+dbg "--- Module overlay tree ($MODDIR) ---"
+find "$MODDIR" -maxdepth 6 -not -path '*/system/bin/*' 2>/dev/null >> "$DEBUG_LOG"
+dbg "--- end overlay tree ---"
+
+# --- Log deviceidle whitelist BEFORE any changes ---
+dbg "--- deviceidle whitelist BEFORE ---"
+dumpsys deviceidle whitelist 2>/dev/null >> "$DEBUG_LOG"
+dbg "--- end whitelist ---"
+
+# --- Log deviceidle.xml state BEFORE ---
+DEVICEIDLE_XML="/data/system/deviceidle.xml"
+dbg "--- $DEVICEIDLE_XML BEFORE ---"
+if [ -f "$DEVICEIDLE_XML" ]; then
+    cat "$DEVICEIDLE_XML" >> "$DEBUG_LOG" 2>/dev/null
+else
+    dbg "  File does not exist yet"
+fi
+dbg "--- end deviceidle.xml ---"
+
+# --- Sysconfig XML cleanup ---
+dbg "--- Sysconfig XML conflict scan ---"
 find /data/adb/* -type f -iname "*.xml" -print 2>/dev/null |
 while IFS= read -r XML; do
     if grep -qE "$STR1|$STR2|$STR3|$STR4" "$XML" 2>/dev/null; then
-        echo "[MOD-XML] FOUND conflicting: $XML"
-        echo "[MOD-XML] BEFORE:"
-        cat "$XML"
+        dbg "  Conflict found: $XML"
+        dbg "  Matching lines before sed:"
+        grep -nE "$STR1|$STR2|$STR3|$STR4" "$XML" 2>/dev/null >> "$DEBUG_LOG"
         sed -i "/$STR1/d;/$STR2/d;/$STR3/d;/$STR4/d" "$XML"
-        echo "[MOD-XML] AFTER:"
-        cat "$XML"
-    fi
-done
-PATCH_DIR="$MODDIR/patched"
-echo "[BIND] Creating patch dir: $PATCH_DIR"
-mkdir -p "$PATCH_DIR"
-for SRC in \
-    /product/etc/sysconfig/google.xml \
-    /system/etc/sysconfig/google.xml \
-    /system_ext/etc/sysconfig/google.xml; do
-    echo "[BIND] Checking: $SRC"
-    if [ ! -f "$SRC" ]; then
-        echo "[BIND]   NOT FOUND, skipping"
-        continue
-    fi
-    if ! grep -qE "$STR1|$STR2|$STR3|$STR4" "$SRC" 2>/dev/null; then
-        echo "[BIND]   No GMS entries found, skipping"
-        continue
-    fi
-    FNAME="$(echo "$SRC" | tr '/' '_').xml"
-    DST="$PATCH_DIR/$FNAME"
-    echo "[BIND]   Copying $SRC -> $DST"
-    cp -f "$SRC" "$DST"
-    echo "[BIND]   Patching $DST"
-    sed -i "/$STR1/d;/$STR2/d;/$STR3/d;/$STR4/d" "$DST"
-    echo "[BIND]   Patched content:"
-    cat "$DST"
-    echo "[BIND]   Remaining GMS entries in patched file:"
-    grep -E "com.google.android.gms" "$DST" 2>/dev/null || echo "[BIND]   (none - correctly patched)"
-    echo "[BIND]   Attempting mount --bind $DST $SRC"
-    mount --bind "$DST" "$SRC"
-    MOUNT_RESULT=$?
-    echo "[BIND]   mount result: $MOUNT_RESULT"
-    if [ $MOUNT_RESULT -eq 0 ]; then
-        echo "[BIND]   SUCCESS - verifying:"
-        echo "[BIND]   Inode after bind (should differ from original):"
-        stat -c '%i' "$SRC" 2>/dev/null
-        echo "[BIND]   GMS entries in mounted file:"
-        grep -E "com.google.android.gms" "$SRC" 2>/dev/null || echo "[BIND]   (none - bind mount working)"
-        echo "[BIND]   /proc/mounts entry:"
-        cat /proc/mounts | grep "$SRC" || echo "[BIND]   (not in /proc/mounts)"
+        REMAINING=$(grep -cE "$STR1|$STR2|$STR3|$STR4" "$XML" 2>/dev/null || echo 0)
+        dbg "  Remaining GMS lines after sed: $REMAINING"
     else
-        echo "[BIND]   FAILED - mount --bind returned $MOUNT_RESULT"
-        echo "[BIND]   Trying alternative: mount -o bind"
-        mount -o bind "$DST" "$SRC"
-        echo "[BIND]   Alternative mount result: $?"
+        dbg "  Clean (no conflict): $XML"
     fi
 done
-echo "[BIND] Final /proc/mounts state:"
-cat /proc/mounts | grep -E "google|sysconfig|product" | head -10
-echo "[BIND] patched/ directory:"
-ls -la "$PATCH_DIR" 2>/dev/null
-echo "[DEBUG] post-fs-data.sh completed. $(date)"
-echo "========================================"
+dbg "--- end sysconfig scan ---"
+
+# --- deviceidle.xml cleanup and un-wl injection ---
+dbg "--- deviceidle.xml patch ---"
+if [ -f "$DEVICEIDLE_XML" ]; then
+    HAS_WL="$(grep -c "<wl n=\"$GMS_PKG\"" "$DEVICEIDLE_XML" 2>/dev/null || echo 0)"
+    HAS_UNWL="$(grep -c "<un-wl n=\"$GMS_PKG\"" "$DEVICEIDLE_XML" 2>/dev/null || echo 0)"
+    dbg "  <wl> entries for GMS: $HAS_WL"
+    dbg "  <un-wl> entries for GMS: $HAS_UNWL"
+
+    if [ "$HAS_WL" -gt 0 ]; then
+        dbg "  Removing <wl n=\"$GMS_PKG\"> ..."
+        sed -i "/<wl n=\"$GMS_PKG\"/d" "$DEVICEIDLE_XML"
+        restorecon "$DEVICEIDLE_XML" 2>/dev/null
+        AFTER_WL="$(grep -c "<wl n=\"$GMS_PKG\"" "$DEVICEIDLE_XML" 2>/dev/null || echo 0)"
+        dbg "  <wl> entries after removal: $AFTER_WL"
+    fi
+
+    if [ "$HAS_UNWL" -eq 0 ]; then
+        dbg "  Injecting <un-wl n=\"$GMS_PKG\" /> ..."
+        sed -i "s|</config>|  <un-wl n=\"$GMS_PKG\" />\n</config>|" "$DEVICEIDLE_XML"
+        restorecon "$DEVICEIDLE_XML" 2>/dev/null
+        AFTER_UNWL="$(grep -c "<un-wl n=\"$GMS_PKG\"" "$DEVICEIDLE_XML" 2>/dev/null || echo 0)"
+        dbg "  <un-wl> entries after injection: $AFTER_UNWL"
+    else
+        dbg "  <un-wl> already present -- skipping injection"
+    fi
+
+    dbg "--- $DEVICEIDLE_XML AFTER ---"
+    cat "$DEVICEIDLE_XML" >> "$DEBUG_LOG" 2>/dev/null
+    dbg "--- end deviceidle.xml after ---"
+else
+    dbg "  $DEVICEIDLE_XML does not exist -- skipping (first boot?)"
+fi
+dbg "--- end deviceidle.xml patch ---"
+
+# --- Log SELinux context ---
+dbg "--- SELinux context of deviceidle.xml ---"
+ls -Z "$DEVICEIDLE_XML" 2>/dev/null >> "$DEBUG_LOG"
+dbg "---"
+
+dbg "=== post-fs-data.sh complete ==="
