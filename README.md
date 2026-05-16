@@ -60,6 +60,7 @@ If the issue still persists, move the app to Not Optimized battery usage.
 | Device | Codename | ROM | Android | Kernel | KernelSU |
 |--------|----------|-----|---------|--------|----------|
 | Pixel 7 Pro | cheetah | crDroid 11.6 | 15 | blu_spark 256 | KernelSU 3.1.0 GKI |
+| Pixel 7 Pro | cheetah | crDroid 12.9 | 16 | blu_spark 263 | KernelSU 3.2.4 GKI |
 | Xiaomi Mi 10 | umi | PixelOS 16.2 | 16 | N0Kernel v16.4.9 v2 | KernelSU Next 1.1.1 hotfix |
 
 ## Credits
