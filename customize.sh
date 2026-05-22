@@ -60,9 +60,7 @@ _PARTITIONS="/india /my_bigball /my_carrier /my_company /my_engineering /my_heyt
 /my_manifest /my_preload /my_product /my_region /my_reserve /my_stock \
 /odm /product /system /system_ext /vendor"
 
-_GMS_PATTERNS="com\\.google\\.android\\.gms|com\\.google\\.android\\.gsf|\
-allow-in-power-save|allow-in-data-usage-save|\
-allow-unthrottled-location|allow-ignore-location-settings"
+_GMS_PATTERNS="allow-in-power-save.*com.google.android.gms allow-in-data-usage-save.*com.google.android.gms allow-unthrottled-location.*com.google.android.gms allow-ignore-location-settings.*com.google.android.gms"
 
 # Returns 0 if /$1 is a separate mount point (not folded under /system).
 # Needed so _fixup_partition_layout places overlays at the right path for
@@ -92,11 +90,6 @@ _fixup_partition_layout() {
                 else
                     log_doze "[WARN] cp failed for /$p -- keeping at \$MODPATH/system/$p/"
                 fi
-            fi
-            # KSU compatibility symlink
-            if [ -d "$_MODDIR/$p" ] && [ ! -e "$_MODDIR/system/$p" ]; then
-                mkdir -p "$_MODDIR/system" 2>/dev/null
-                ln -sf "../$p" "$_MODDIR/system/$p" 2>/dev/null
             fi
         else
             # Integrated partition: overlay must live at $MODPATH/system/<part>/
@@ -193,27 +186,28 @@ patch_xml() {
 }
 
 # Patch any conflicting XMLs already installed by other modules under /data/adb/
-# NOTE: STR* must be defined here, in the global scope, before MOD_XML is evaluated.
-STR1="allow-in-power-save package=\"com.google.android.gms\""
-STR2="allow-in-data-usage-save package=\"com.google.android.gms\""
-STR3="allow-unthrottled-location package=\"com.google.android.gms\""
-STR4="allow-ignore-location-settings package=\"com.google.android.gms\""
-NLL="/dev/null"
-
 PATCH_MX() {
     ui_print "- Searching conflicting XML in /data/adb"
-    MOD_XML="$(
-        MXML="$(find /data/adb/* -not -path "*/modules_update/*" -type f -iname "*.xml" -print 2>/dev/null)"
-        for M in $MXML; do
-            if grep -qE "$STR1|$STR2|$STR3|$STR4" "$M" 2>/dev/null; then
-                echo "$M"
+    GMS_PKG="com.google.android.gms"
+
+    # Regex patterns (NOW MATCH customize.sh)
+    GMS_PATTERNS="
+    allow-unthrottled-location.*$GMS_PKG
+    allow-ignore-location-settings.*$GMS_PKG
+    allow-in-power-save.*$GMS_PKG
+    allow-in-data-usage-save.*$GMS_PKG
+    "
+
+    NULL="/dev/null"
+
+    # Sysconfig-only scan (IMPORTANT: avoid /data/adb noise)
+    find /data/adb/modules* -type f -path "*/etc/sysconfig/*.xml" -print 2>/dev/null |
+    while IFS= read -r XML; do
+        for PAT in $GMS_PATTERNS; do
+            if grep -qE "$PAT" "$XML" 2>/dev/null; then
+                sed -i "/$PAT/d" "$XML"
             fi
         done
-    )"
-    for MX in $MOD_XML; do
-        MOD="$(echo "$MX" | awk -F'/' '{print $5}')"
-        ui_print "  $MOD: $MX"
-        sed -i "/$STR1/d;/$STR2/d;/$STR3/d;/$STR4/d" "$MX"
     done
 }
 

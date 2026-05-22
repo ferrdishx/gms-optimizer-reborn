@@ -1,5 +1,10 @@
 ## Change Log:
-- 1.9.9
+- 1.9.10    
+Now patch the real xml (pattern bug patch all)
+Fixed symlink inside symlink folder
+Change find logic to work only on /modules folder
+
+- 1.9.9     
 Improved partition handling and expanded OEM partition support for better compatibility
 Cleaned up and simplified XML patching logic
 Fixed encoding issues in reboot messages
@@ -9,7 +14,7 @@ Fixed debug log path
 Reduced unnecessary patching and false warning messages
 Improved uninstall cleanup and restoration behavior
 
-- 1.9.8
+- 1.9.8     
 Added a method to force patch on oneplus devices (and others?), thanks to @xizt159
 
 - 1.9.7   

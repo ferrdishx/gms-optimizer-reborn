@@ -7,22 +7,25 @@
 
 {
     GMS_PKG="com.google.android.gms"
-    GMS0="\"$GMS_PKG\""
-    STR1="allow-unthrottled-location package=$GMS0"
-    STR2="allow-ignore-location-settings package=$GMS0"
-    STR3="allow-in-power-save package=$GMS0"
-    STR4="allow-in-data-usage-save package=$GMS0"
-    NULL="/dev/null"
-}
 
-# --- Sysconfig XML cleanup ---
-# Remove GMS whitelist entries from any sysconfig XML under /data/adb (other modules).
-{
-    find /data/adb/* -type f -iname "*.xml" -print 2>/dev/null |
+    # Regex patterns (NOW MATCH customize.sh)
+    GMS_PATTERNS="
+    allow-unthrottled-location.*$GMS_PKG
+    allow-ignore-location-settings.*$GMS_PKG
+    allow-in-power-save.*$GMS_PKG
+    allow-in-data-usage-save.*$GMS_PKG
+    "
+
+    NULL="/dev/null"
+
+    # Sysconfig-only scan (IMPORTANT: avoid /data/adb noise)
+    find /data/adb/modules* -type f -path "*/etc/sysconfig/*.xml" -print 2>/dev/null |
     while IFS= read -r XML; do
-        if grep -qE "$STR1|$STR2|$STR3|$STR4" "$XML" 2>/dev/null; then
-            sed -i "/$STR1/d;/$STR2/d;/$STR3/d;/$STR4/d" "$XML"
-        fi
+        for PAT in $GMS_PATTERNS; do
+            if grep -qE "$PAT" "$XML" 2>/dev/null; then
+                sed -i "/$PAT/d" "$XML"
+            fi
+        done
     done
 }
 

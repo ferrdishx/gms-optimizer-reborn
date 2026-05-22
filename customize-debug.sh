@@ -105,9 +105,8 @@ _PARTITIONS="/india /my_bigball /my_carrier /my_company /my_engineering /my_heyt
 /my_manifest /my_preload /my_product /my_region /my_reserve /my_stock \
 /odm /product /system /system_ext /vendor"
 
-_GMS_PATTERNS="com\\.google\\.android\\.gms|com\\.google\\.android\\.gsf|\
-allow-in-power-save|allow-in-data-usage-save|\
-allow-unthrottled-location|allow-ignore-location-settings"
+_GMS_PATTERNS="allow-in-power-save.*com.google.android.gms allow-in-data-usage-save.*com.google.android.gms allow-unthrottled-location.*com.google.android.gms allow-ignore-location-settings.*com.google.android.gms"
+
 
 _is_separate_partition() {
     local p="$1"
@@ -144,11 +143,6 @@ _fixup_partition_layout() {
                 fi
             else
                 dbg_raw "  /$p separate but no $p dir under \$MODPATH/system/ -- nothing to move"
-            fi
-            if [ -d "$_MODDIR/$p" ] && [ ! -e "$_MODDIR/system/$p" ]; then
-                mkdir -p "$_MODDIR/system" 2>/dev/null
-                ln -sf "../$p" "$_MODDIR/system/$p" 2>/dev/null
-                dbg_raw "  Created KSU compat symlink: $_MODDIR/system/$p -> ../$p"
             fi
         else
             if [ -d "$_MODDIR/$p" ] && [ ! -L "$_MODDIR/$p" ]; then
@@ -283,32 +277,33 @@ STR4="allow-ignore-location-settings package=\"com.google.android.gms\""
 NLL="/dev/null"
 
 PATCH_MX() {
+
     ui_print "- Searching conflicting XML in /data/adb"
     dbg_raw "--- PATCH_MX start ---"
-    MOD_XML="$(
-        MXML="$(find /data/adb/* -not -path "*/modules_update/*" -type f -iname "*.xml" -print 2>/dev/null)"
-        for M in $MXML; do
-            if grep -qE "$STR1|$STR2|$STR3|$STR4" "$M" 2>/dev/null; then
-                echo "$M"
+    GMS_PKG="com.google.android.gms"
+
+    # Regex patterns (NOW MATCH customize.sh)
+    GMS_PATTERNS="
+    allow-unthrottled-location.*$GMS_PKG
+    allow-ignore-location-settings.*$GMS_PKG
+    allow-in-power-save.*$GMS_PKG
+    allow-in-data-usage-save.*$GMS_PKG
+    "
+
+    NULL="/dev/null"
+
+    # Sysconfig-only scan (IMPORTANT: avoid /data/adb noise)
+    find /data/adb/modules* -type f -path "*/etc/sysconfig/*.xml" -print 2>/dev/null |
+    while IFS= read -r XML; do
+        for PAT in $GMS_PATTERNS; do
+            if grep -qE "$PAT" "$XML" 2>/dev/null; then
+                dbg_raw "Patching conflict"
+                sed -i "/$PAT/d" "$XML"
+            else
+                dbg_raw "  No conflicting XMLs found in /data/adb"
             fi
         done
-    )"
-    if [ -z "$MOD_XML" ]; then
-        dbg_raw "  No conflicting XMLs found in /data/adb"
-    fi
-    for MX in $MOD_XML; do
-        MOD="$(echo "$MX" | awk -F'/' '{print $5}')"
-        ui_print "  $MOD: $MX"
-        dbg_raw "  Patching conflict: $MX (module: $MOD)"
-        {
-            echo "  --- Matching lines in $MX before patch ---"
-            grep -nE "$STR1|$STR2|$STR3|$STR4" "$MX" 2>/dev/null
-            echo "  ---"
-        } >> "$DEBUG_LOG"
-        sed -i "/$STR1/d;/$STR2/d;/$STR3/d;/$STR4/d" "$MX"
-        dbg_raw "  After patch -- remaining GMS lines: $(grep -cE "$STR1|$STR2|$STR3|$STR4" "$MX" 2>/dev/null || echo 0)"
     done
-    dbg_raw "--- PATCH_MX end ---"
 }
 
 patch_xml
