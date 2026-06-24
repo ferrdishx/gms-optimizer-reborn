@@ -1,7 +1,20 @@
 ## Changelog
 
 ### 1.0.0
-- Rebranded as GMS Optimizer Reborn
-- Cleaned up all scripts
-- Improved README and documentation
-- Based on MarsPatrick/universal-gms-doze 1.9.10
+- Rebranded as **GMS Optimizer Reborn** (fork of MarsPatrick/universal-gms-doze 1.9.10)
+- All scripts rewritten without inline comments, English only
+- **WebUI — 4 tabs:**
+  - Home: live status with active profile name, surgical notification fix
+  - Profiles: Balanced / Aggressive / Gaming — persisted via profile.conf, re-applied on boot
+  - Exemptions: app list with letter avatars and friendly labels, auto-detect messaging apps
+  - Logs: Doze state, install log and AppOps dump directly in the UI
+- **Notification fix is now surgical:** force-stops GMS, runs pm trim-caches, targets only gcm/fcm database files instead of a broad find-delete
+- **3 optimization profiles via AppOps:**
+  - Balanced: whitelist removed, AppOps at default
+  - Aggressive: additionally restricts WAKE_LOCK, SCHEDULE_EXACT_ALARM and background activity
+  - Gaming: re-whitelists GMS and sets all AppOps to allow
+- **Auto-detect Messaging:** scans installed packages and auto-exempts known messaging apps (WhatsApp, Telegram, Signal, Discord, Viber, etc.)
+- **OxygenOS detection:** banner shown automatically with link to Frosty if OxygenOS is detected
+- **JS security:** crypto.randomUUID() replaces Date.now() for KernelSU callback IDs
+- service.sh reads profile.conf on boot and applies the correct AppOps commands
+- module.json and updateJson point to new repository

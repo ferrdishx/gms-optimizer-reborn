@@ -4,9 +4,10 @@
 
 **Forces Google Play Services into battery optimization, enabling real Doze mode savings.**
 
-[![GitHub Release](https://img.shields.io/github/v/release/ferrdishx/universal-gms-doze?style=for-the-badge&color=00ff9d&labelColor=0a0a0f)](https://github.com/ferrdishx/universal-gms-doze/releases)
-[![License](https://img.shields.io/github/license/ferrdishx/universal-gms-doze?style=for-the-badge&color=00ff9d&labelColor=0a0a0f)](LICENSE)
-[![Android](https://img.shields.io/badge/Android-6.0%2B-00ff9d?style=for-the-badge&labelColor=0a0a0f)](https://github.com/ferrdishx/universal-gms-doze/releases)
+[![GitHub Release](https://img.shields.io/github/v/release/ferrdishx/gms-optimizer-reborn?style=for-the-badge&color=00ff9d&labelColor=0a0a0f)](https://github.com/ferrdishx/gms-optimizer-reborn/releases/latest)
+[![GitHub Downloads](https://img.shields.io/github/downloads/ferrdishx/gms-optimizer-reborn/total?style=for-the-badge&color=00ff9d&labelColor=0a0a0f)](https://github.com/ferrdishx/gms-optimizer-reborn/releases)
+[![License](https://img.shields.io/github/license/ferrdishx/gms-optimizer-reborn?style=for-the-badge&color=00ff9d&labelColor=0a0a0f)](LICENSE)
+[![Android](https://img.shields.io/badge/Android-6.0%2B-00ff9d?style=for-the-badge&labelColor=0a0a0f)](https://github.com/ferrdishx/gms-optimizer-reborn/releases/latest)
 
 </div>
 
@@ -14,14 +15,14 @@
 
 ## What It Does
 
-By default, Android whitelists Google Play Services from battery optimization, preventing Doze mode from working properly. This module removes that exemption system-wide, patches relevant sysconfig XMLs, and ensures the state persists across reboots.
+By default, Android whitelists Google Play Services from battery optimization, preventing Doze mode from working properly. GMS Optimizer Reborn removes that exemption system-wide, patches all relevant sysconfig XMLs across partitions, and ensures the state persists across every reboot.
 
-- Patches sysconfig XML files across all partitions
-- Removes GMS from both user-tier and system-tier Doze whitelists
+- Patches sysconfig XML files across all system partitions
+- Removes GMS from user-tier and system-tier Doze whitelists
 - Persists changes via `deviceidle.xml` injection on every boot
 - Keeps Google Services Framework (GSF) whitelisted for push notifications
 - Disables Find My Device admin receivers
-- Includes `gmsc` binary for quick status check
+- Includes `gmsc` binary for quick terminal status check
 
 ---
 
@@ -33,12 +34,14 @@ By default, Android whitelists Google Play Services from battery optimization, p
 | Root | Magisk, KernelSU or APatch |
 
 > **KernelSU 3.x (32302+):** Requires [meta-overlayfs](https://github.com/KernelSU-Modules-Repo/meta-overlayfs/releases) or another compatible metamodule installed first.
+>
+> **OnePlus OxygenOS 16:** GMS modification may be blocked by the system. If optimization does not apply, try [Frosty](https://github.com/xizt159/Frosty) instead.
 
 ---
 
 ## Installation
 
-1. Download the latest `.zip` from [Releases](https://github.com/ferrdishx/universal-gms-doze/releases)
+1. Download the latest `.zip` from [Releases](https://github.com/ferrdishx/gms-optimizer-reborn/releases/latest)
 2. Open **Magisk / KernelSU / APatch**
 3. Tap **Install from storage** and select the zip
 4. Reboot
@@ -49,14 +52,33 @@ By default, Android whitelists Google Play Services from battery optimization, p
 
 ## WebUI
 
-Available directly from the KernelSU module page.
+Available directly from the KernelSU or APatch module page.
 
+### Home
 | Feature | Description |
 |---|---|
-| Status | Shows whether GMS is currently optimized |
-| Fix Notifications | Clears GMS cache to resolve delayed messages |
-| Find My Device | Toggle to disable/enable the admin receiver |
-| Force Re-apply | Reapplies optimization without rebooting |
+| Optimization Status | Live GMS Doze status with active profile indicator |
+| Fix Delayed Notifications | Surgically clears GMS cache, force-stops the process and deletes stale FCM/GCM database entries |
+| Find My Device Toggle | Enable or disable the MdmDeviceAdminReceiver |
+| Force Re-apply | Removes GMS from all Doze whitelists immediately without rebooting |
+
+### Profiles
+Three optimization profiles, persisted across reboots:
+
+| Profile | Description |
+|---|---|
+| **Balanced** | Removes GMS from Doze whitelist, keeps AppOps at default. Recommended for daily use. |
+| **Aggressive** | Additionally restricts background activity, WAKE_LOCK and SCHEDULE_EXACT_ALARM via AppOps. May cause notification delays. |
+| **Gaming** | Temporarily re-whitelists GMS and sets all AppOps to allow. Switch back after your session. |
+
+### Exemptions
+- Full app list with friendly names, letter avatars and package search
+- Toggle individual apps in or out of the Doze exemption list
+- **Auto-detect Messaging** — automatically detects and exempts installed messaging apps (WhatsApp, Telegram, Signal, Discord and more)
+- Changes are saved to `exemptions.conf` and re-applied on every boot
+
+### Logs
+Direct in-UI access to Doze state dump, install log and GMS AppOps output — no terminal needed.
 
 ---
 
@@ -74,23 +96,23 @@ Or check manually:
 dumpsys deviceidle
 ```
 
-Look for the `Whitelist (except idle) system apps:` section — if `com.google.android.gms` is absent, it's optimized.
+Look for `Whitelist (except idle) system apps:` — if `com.google.android.gms` is absent, optimization is active.
 
 ---
 
-## Exemptions
+## Exemptions File
 
-To whitelist specific packages from Doze (e.g. messaging apps), create:
+To manually whitelist packages from Doze, create:
 
 ```
 /data/adb/modules/gms-optimizer-reborn/exemptions.conf
 ```
 
-One package name per line:
+One package per line:
 
 ```
 com.whatsapp
-com.telegram.messenger
+org.telegram.messenger
 ```
 
 ---
@@ -99,13 +121,11 @@ com.telegram.messenger
 
 **Delayed notifications after install**
 
-```sh
-su
-cd /data/data
-find . -type f -name '*gms*' -delete
-```
+Use the **Fix Delayed Notifications** button in the WebUI, or run:
 
-Or use the **Fix Notifications** button in the WebUI.
+```sh
+su -c "am force-stop com.google.android.gms; pm trim-caches 999G"
+```
 
 **Disable Find My Device manually**
 
@@ -113,16 +133,22 @@ Or use the **Fix Notifications** button in the WebUI.
 su -c "pm disable com.google.android.gms/com.google.android.gms.mdm.receivers.MdmDeviceAdminReceiver"
 ```
 
+**Check optimization status**
+
+```sh
+su -c gmsc
+```
+
 ---
 
 ## Credits
 
 - [gloeyisk](https://github.com/gloeyisk/universal-gms-doze) — original author
-- [MarsPatrick](https://github.com/MarsPatrick/universal-gms-doze) — Android 15+ & KernelSU compatibility
+- [MarsPatrick](https://github.com/MarsPatrick/universal-gms-doze) — Android 15+ & KernelSU compatibility base
 - topjohnwu — Magisk Module Template
 
 ---
 
 <div align="center">
-<sub>Fork of MarsPatrick/universal-gms-doze · GPL-2.0</sub>
+<sub>GMS Optimizer Reborn · GPL-2.0 · <a href="https://github.com/ferrdishx/gms-optimizer-reborn">ferrdishx/gms-optimizer-reborn</a></sub>
 </div>
