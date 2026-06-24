@@ -16,6 +16,10 @@
     --accent-glow: rgba(0,255,157,0.25);
     --warn: #ff6b35;
     --warn-dim: rgba(255,107,53,0.12);
+    --danger: #ff4466;
+    --danger-dim: rgba(255,68,102,0.12);
+    --blue: #4fa3ff;
+    --blue-dim: rgba(79,163,255,0.12);
     --text: #e0e0f0;
     --text-dim: #606080;
     --optimized: #00ff9d;
@@ -35,11 +39,9 @@
 
   body::before {
     content: '';
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
-    pointer-events: none;
-    z-index: 999;
+    pointer-events: none; z-index: 999;
   }
 
   header { margin-bottom: 20px; }
@@ -73,27 +75,36 @@
     padding-left: 18px;
   }
 
-  /* Tabs */
+  .warn-banner {
+    background: var(--warn-dim);
+    border: 1px solid var(--warn);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 11px;
+    color: var(--warn);
+    line-height: 1.5;
+    display: none;
+  }
+
+  .warn-banner a { color: var(--warn); }
+  .warn-banner.visible { display: block; }
+
   .tabs {
-    display: flex;
-    gap: 4px;
+    display: flex; gap: 4px;
     margin-bottom: 20px;
     border-bottom: 1px solid var(--border);
-    padding-bottom: 0;
   }
 
   .tab {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 11px; font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--text-dim);
-    background: none;
-    border: none;
+    background: none; border: none;
     border-bottom: 2px solid transparent;
-    padding: 8px 14px;
-    cursor: pointer;
+    padding: 8px 12px; cursor: pointer;
     margin-bottom: -1px;
     transition: color 0.2s, border-color 0.2s;
   }
@@ -104,21 +115,17 @@
   .page { display: none; }
   .page.active { display: block; }
 
-  /* Status card */
   .status-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 16px;
-    position: relative;
-    overflow: hidden;
+    padding: 20px; margin-bottom: 16px;
+    position: relative; overflow: hidden;
   }
 
   .status-card::before {
     content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
+    position: absolute; top: 0; left: 0; right: 0;
     height: 1px;
     background: linear-gradient(90deg, transparent, var(--accent), transparent);
     opacity: 0.4;
@@ -127,8 +134,7 @@
   .status-label {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px; color: var(--text-dim);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    letter-spacing: 0.12em; text-transform: uppercase;
     margin-bottom: 12px;
   }
 
@@ -143,13 +149,18 @@
   .status-value.not-optimized { color: var(--not-optimized); text-shadow: 0 0 20px rgba(255,68,102,0.4); }
   .status-value.loading { color: var(--text-dim); text-shadow: none; }
 
+  .status-meta {
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text-dim);
+  }
+
   .refresh-btn {
     position: absolute; top: 16px; right: 16px;
     background: none; border: 1px solid var(--border);
     color: var(--text-dim);
-    width: 32px; height: 32px;
-    border-radius: 6px; cursor: pointer;
-    font-size: 14px;
+    width: 32px; height: 32px; border-radius: 6px;
+    cursor: pointer; font-size: 14px;
     display: flex; align-items: center; justify-content: center;
     transition: border-color 0.2s, color 0.2s;
   }
@@ -162,10 +173,8 @@
   .section-title {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px; color: var(--text-dim);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-    margin-top: 24px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 10px; margin-top: 24px;
   }
 
   .actions { display: flex; flex-direction: column; gap: 10px; }
@@ -203,8 +212,7 @@
     margin-top: 16px;
     background: #07070d;
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px;
+    border-radius: 8px; padding: 14px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px; line-height: 1.6;
     color: var(--text-dim);
@@ -219,7 +227,58 @@
   .output .err { color: var(--not-optimized); }
   .output .info { color: #888; }
 
-  /* App exemptions */
+  .profile-grid { display: flex; flex-direction: column; gap: 10px; }
+
+  .profile-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+
+  .profile-card.active-profile { border-color: var(--accent); background: var(--accent-dim); }
+  .profile-card.active-profile.aggressive { border-color: var(--warn); background: var(--warn-dim); }
+  .profile-card.active-profile.gaming { border-color: var(--blue); background: var(--blue-dim); }
+
+  .profile-card:hover:not(.active-profile) { border-color: #333350; }
+
+  .profile-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+
+  .profile-icon { font-size: 20px; }
+
+  .profile-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 700;
+    color: var(--text);
+  }
+
+  .profile-badge {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.1em;
+    padding: 2px 8px; border-radius: 4px;
+    background: var(--border); color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .active-profile .profile-badge { background: var(--accent); color: #000; }
+  .active-profile.aggressive .profile-badge { background: var(--warn); color: #000; }
+  .active-profile.gaming .profile-badge { background: var(--blue); color: #000; }
+
+  .profile-desc { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+
+  .profile-features { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .profile-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.06em;
+    padding: 3px 7px; border-radius: 4px;
+    background: var(--border); color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
   .search-input {
     width: 100%;
     background: var(--surface);
@@ -228,55 +287,72 @@
     padding: 10px 12px;
     color: var(--text);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    outline: none;
+    font-size: 12px; outline: none;
     margin-bottom: 8px;
     transition: border-color 0.2s;
   }
 
   .search-input:focus { border-color: var(--accent); }
 
-  .app-list {
-    max-height: 320px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+  .exempt-toolbar {
+    display: flex; gap: 8px; margin-bottom: 12px;
   }
+
+  .detect-btn {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 9px 12px;
+    cursor: pointer; color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 600;
+    transition: border-color 0.2s, background 0.2s;
+    text-align: center;
+  }
+
+  .detect-btn:hover { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+
+  .app-list { max-height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
 
   .app-item {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 14px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    border-radius: 8px; padding: 10px 14px;
+    display: flex; align-items: center; gap: 12px;
     transition: border-color 0.2s;
   }
 
   .app-item.exempted { border-color: var(--accent); background: var(--accent-dim); }
 
+  .app-avatar {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px; font-weight: 700;
+    flex-shrink: 0; color: #000;
+  }
+
   .app-item-info { flex: 1; min-width: 0; }
 
-  .app-item-name {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px; font-weight: 600;
+  .app-item-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 500;
     color: var(--text);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
 
   .app-item-pkg {
+    font-family: 'JetBrains Mono', monospace;
     font-size: 10px; color: var(--text-dim);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-top: 2px;
   }
 
   .app-toggle {
-    width: 36px; height: 20px;
-    border-radius: 10px; border: none;
-    cursor: pointer; position: relative;
-    transition: background 0.2s;
-    flex-shrink: 0;
+    width: 36px; height: 20px; border-radius: 10px;
+    border: none; cursor: pointer; position: relative;
+    transition: background 0.2s; flex-shrink: 0;
     background: var(--border);
   }
 
@@ -285,19 +361,43 @@
   .app-toggle::after {
     content: '';
     position: absolute;
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    background: white;
-    top: 3px; left: 3px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: white; top: 3px; left: 3px;
     transition: transform 0.2s;
   }
 
   .app-toggle.on::after { transform: translateX(16px); }
   .app-toggle:disabled { opacity: 0.5; cursor: wait; }
 
+  .log-area {
+    background: #07070d;
+    border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; line-height: 1.6;
+    color: var(--text-dim);
+    height: 380px; overflow-y: auto;
+    white-space: pre-wrap; word-break: break-all;
+  }
+
+  .log-toolbar { display: flex; gap: 8px; margin-bottom: 12px; }
+
+  .log-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px; padding: 8px 12px;
+    cursor: pointer; color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .log-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .log-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
   footer {
-    margin-top: 36px;
-    text-align: center;
+    margin-top: 36px; text-align: center;
     font-size: 10px; color: var(--text-dim);
     font-family: 'JetBrains Mono', monospace;
     letter-spacing: 0.06em;
@@ -316,18 +416,24 @@
   <div class="subtitle" id="subtitle">loading...</div>
 </header>
 
-<!-- Tab navigation -->
-<div class="tabs">
-  <button class="tab active" onclick="showPage('home', this)">Home</button>
-  <button class="tab" onclick="showPage('exemptions', this)">Exemptions</button>
+<div class="warn-banner" id="oosBanner">
+  ⚠ OxygenOS detected. GMS modification may be blocked by the system.
+  If optimization does not apply, try <a href="https://github.com/xizt159/Frosty" target="_blank">Frosty</a> instead.
 </div>
 
-<!-- Page: Home -->
+<div class="tabs">
+  <button class="tab active" onclick="showPage('home', this)">Home</button>
+  <button class="tab" onclick="showPage('profiles', this)">Profiles</button>
+  <button class="tab" onclick="showPage('exemptions', this)">Exemptions</button>
+  <button class="tab" onclick="showPage('logs', this)">Logs</button>
+</div>
+
 <div class="page active" id="page-home">
 
   <div class="status-card">
     <div class="status-label">GMS Optimization Status</div>
     <div class="status-value loading" id="statusValue">Checking...</div>
+    <div class="status-meta" id="statusMeta"></div>
     <button class="refresh-btn" id="refreshBtn" onclick="checkStatus()" title="Refresh">↻</button>
   </div>
 
@@ -335,8 +441,8 @@
   <div class="actions">
 
     <button class="action-btn" onclick="runAction('fix_messages')">
-      <div class="btn-title">Fix Delayed Messages</div>
-      <div class="btn-desc">Clears cached GMS data that causes delayed notifications</div>
+      <div class="btn-title">Fix Delayed Notifications</div>
+      <div class="btn-desc">Surgically clears GMS notification cache and stale FCM database entries</div>
       <span class="btn-icon">🧹</span>
     </button>
 
@@ -348,7 +454,7 @@
 
     <button class="action-btn warn" onclick="runAction('force_doze')">
       <div class="btn-title">Force Re-apply Optimization</div>
-      <div class="btn-desc">Removes GMS from Doze whitelist manually right now</div>
+      <div class="btn-desc">Immediately removes GMS from Doze whitelist without rebooting</div>
       <span class="btn-icon">⚡</span>
     </button>
 
@@ -358,15 +464,75 @@
 
 </div>
 
-<!-- Page: Exemptions -->
+<div class="page" id="page-profiles">
+
+  <div style="font-size:11px; color:var(--text-dim); margin-bottom:16px; line-height:1.6;">
+    Choose how aggressively GMS is restricted. The selected profile is re-applied on every boot.
+  </div>
+
+  <div class="profile-grid" id="profileGrid">
+
+    <div class="profile-card" id="profile-balanced" onclick="applyProfile('balanced')">
+      <div class="profile-header">
+        <span class="profile-icon">⚖️</span>
+        <span class="profile-name">Balanced</span>
+        <span class="profile-badge" id="badge-balanced">Active</span>
+      </div>
+      <div class="profile-desc">Removes GMS from Doze whitelist. Push notifications work normally via GSF. Recommended for daily use.</div>
+      <div class="profile-features">
+        <span class="profile-tag">Doze Whitelist Removed</span>
+        <span class="profile-tag">GSF Whitelisted</span>
+        <span class="profile-tag">AppOps Default</span>
+      </div>
+    </div>
+
+    <div class="profile-card aggressive" id="profile-aggressive" onclick="applyProfile('aggressive')">
+      <div class="profile-header">
+        <span class="profile-icon">🔋</span>
+        <span class="profile-name">Aggressive</span>
+        <span class="profile-badge" id="badge-aggressive">Active</span>
+      </div>
+      <div class="profile-desc">Restricts GMS background activity, wake locks and AlarmManager in addition to Doze removal. May cause notification delays.</div>
+      <div class="profile-features">
+        <span class="profile-tag">Doze Whitelist Removed</span>
+        <span class="profile-tag">Background Restricted</span>
+        <span class="profile-tag">Wake Lock Limited</span>
+        <span class="profile-tag">AlarmManager Restricted</span>
+      </div>
+    </div>
+
+    <div class="profile-card gaming" id="profile-gaming" onclick="applyProfile('gaming')">
+      <div class="profile-header">
+        <span class="profile-icon">🎮</span>
+        <span class="profile-name">Gaming</span>
+        <span class="profile-badge" id="badge-gaming">Active</span>
+      </div>
+      <div class="profile-desc">Temporarily re-enables GMS unrestricted access. Use while gaming. Switch back to Balanced after your session.</div>
+      <div class="profile-features">
+        <span class="profile-tag">GMS Whitelisted</span>
+        <span class="profile-tag">AppOps Allowed</span>
+        <span class="profile-tag">No Doze Restriction</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="output" id="profile-output"></div>
+
+</div>
+
 <div class="page" id="page-exemptions">
 
   <div style="font-size:11px; color:var(--text-dim); margin-bottom:12px; line-height:1.6;">
-    Exempted apps bypass Doze and background restrictions for reliable push notifications.
-    Settings are saved and re-applied on every boot.
+    Exempted apps bypass Doze and background restrictions. Settings are saved and re-applied on every boot.
   </div>
 
-  <input type="text" class="search-input" id="appSearch" placeholder="Search apps..." oninput="filterApps()">
+  <div class="exempt-toolbar">
+    <button class="detect-btn" onclick="autoDetectMessaging()">⚡ Auto-detect Messaging</button>
+    <button class="detect-btn" onclick="loadApps()" style="max-width:80px;">↻ Reload</button>
+  </div>
+
+  <input type="text" class="search-input" id="appSearch" placeholder="Search by name or package..." oninput="filterApps()">
 
   <div class="app-list" id="appList">
     <div style="color:var(--text-dim); font-size:11px; font-family:'JetBrains Mono',monospace; padding:8px;">
@@ -376,19 +542,107 @@
 
 </div>
 
+<div class="page" id="page-logs">
+
+  <div class="log-toolbar">
+    <button class="log-btn active" id="logbtn-doze" onclick="loadLog('doze', this)">Doze State</button>
+    <button class="log-btn" id="logbtn-install" onclick="loadLog('install', this)">Install Log</button>
+    <button class="log-btn" id="logbtn-appops" onclick="loadLog('appops', this)">AppOps</button>
+  </div>
+
+  <div class="log-area" id="logArea">Select a log source above.</div>
+
+</div>
+
 <footer>
-  fork of <a href="https://github.com/gloeyisk/gms-optimizer-reborn">gloeyisk/gms-optimizer-reborn</a>
-  · <a href="https://github.com/MarsPatrick/gms-optimizer-reborn">source</a>
+  fork of <a href="https://github.com/gloeyisk/universal-gms-doze">gloeyisk/universal-gms-doze</a>
+  · <a href="https://github.com/ferrdishx/universal-gms-doze">source</a>
 </footer>
 
 <script>
 const MOD = '/data/adb/modules/gms-optimizer-reborn';
 const CONFIG = MOD + '/exemptions.conf';
+const PROFILE_FILE = MOD + '/profile.conf';
+const GMS = 'com.google.android.gms';
+const FMD_COMP = GMS + '/com.google.android.gms.mdm.receivers.MdmDeviceAdminReceiver';
 
-let _cbId = 0;
+const APP_LABELS = {
+  'com.whatsapp': 'WhatsApp',
+  'com.whatsapp.w4b': 'WhatsApp Business',
+  'org.telegram.messenger': 'Telegram',
+  'org.telegram.messenger.web': 'Telegram X',
+  'com.discord': 'Discord',
+  'com.instagram.android': 'Instagram',
+  'com.facebook.orca': 'Messenger',
+  'com.facebook.katana': 'Facebook',
+  'com.twitter.android': 'X (Twitter)',
+  'com.snapchat.android': 'Snapchat',
+  'com.viber.voip': 'Viber',
+  'com.skype.raider': 'Skype',
+  'com.microsoft.teams': 'Teams',
+  'com.slack': 'Slack',
+  'com.google.android.talk': 'Google Chat',
+  'com.google.android.apps.messaging': 'Messages',
+  'com.tencent.mm': 'WeChat',
+  'jp.naver.line.android': 'LINE',
+  'com.kakao.talk': 'KakaoTalk',
+  'org.thoughtcrime.securesms': 'Signal',
+  'com.microsoft.outlook': 'Outlook',
+  'com.google.android.gm': 'Gmail',
+  'com.netflix.mediaclient': 'Netflix',
+  'com.spotify.music': 'Spotify',
+  'com.google.android.youtube': 'YouTube',
+  'com.tiktok': 'TikTok',
+  'com.zhiliaoapp.musically': 'TikTok',
+  'com.linkedin.android': 'LinkedIn',
+  'com.reddit.frontpage': 'Reddit',
+  'com.uber': 'Uber',
+  'com.ifood.android': 'iFood',
+  'br.com.bb.android': 'Banco do Brasil',
+  'com.nu.production': 'Nubank',
+  'com.itau': 'Itaú',
+  'com.bradesco': 'Bradesco',
+  'com.santander.app': 'Santander',
+  'br.com.intermedium': 'Inter',
+  'com.mercadopago.wallet': 'Mercado Pago',
+  'com.picpay': 'PicPay',
+};
+
+const MESSAGING_PKGS = new Set([
+  'com.whatsapp', 'com.whatsapp.w4b',
+  'org.telegram.messenger', 'org.telegram.messenger.web',
+  'com.discord', 'com.instagram.android', 'com.facebook.orca',
+  'com.viber.voip', 'com.skype.raider', 'com.microsoft.teams',
+  'com.slack', 'com.google.android.talk', 'com.google.android.apps.messaging',
+  'com.tencent.mm', 'jp.naver.line.android', 'com.kakao.talk',
+  'org.thoughtcrime.securesms',
+]);
+
+const AVATAR_COLORS = [
+  '#00ff9d','#4fa3ff','#ff6b35','#c084fc','#f59e0b',
+  '#34d399','#f87171','#60a5fa','#a78bfa','#fb923c',
+];
+
+function avatarColor(pkg) {
+  let h = 0;
+  for (let i = 0; i < pkg.length; i++) h = (h * 31 + pkg.charCodeAt(i)) >>> 0;
+  return AVATAR_COLORS[h % AVATAR_COLORS.length];
+}
+
+function getLabel(pkg) {
+  return APP_LABELS[pkg] || pkg.split('.').filter(p => p.length > 2).pop() || pkg;
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
 function exec(cmd) {
   return new Promise((resolve, reject) => {
-    const cb = `_ksu_cb_${Date.now()}_${_cbId++}`;
+    const id = (typeof crypto !== 'undefined' && crypto.randomUUID)
+      ? crypto.randomUUID().replace(/-/g, '')
+      : Math.random().toString(36).slice(2) + Date.now().toString(36);
+    const cb = '_ksu_' + id;
     window[cb] = (errno, stdout, stderr) => { delete window[cb]; resolve({ errno, stdout, stderr }); };
     try { ksu.exec(cmd, '{}', cb); }
     catch(e) { delete window[cb]; reject(e); }
@@ -396,28 +650,35 @@ function exec(cmd) {
 }
 
 function toast(msg) { try { ksu.toast(msg); } catch(e) { console.log(msg); } }
-function escapeHtml(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-// ── Navigation ────────────────────────────────────────────────
 window.showPage = function(id, tab) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
   tab.classList.add('active');
   if (id === 'exemptions' && allApps.length === 0) loadApps();
+  if (id === 'logs') loadLog('doze', document.getElementById('logbtn-doze'));
+  if (id === 'profiles') refreshProfileUI();
 };
 
-// ── Home page ─────────────────────────────────────────────────
 window.checkStatus = async function() {
   const btn = document.getElementById('refreshBtn');
   const val = document.getElementById('statusValue');
+  const meta = document.getElementById('statusMeta');
   btn.classList.add('spinning');
   val.className = 'status-value loading';
   val.textContent = 'Checking...';
+  meta.textContent = '';
   try {
-    const { stdout } = await exec('dumpsys deviceidle whitelist 2>/dev/null | grep com.google.android.gms | head -1');
-    val.className = stdout.trim() === '' ? 'status-value optimized' : 'status-value not-optimized';
-    val.textContent = stdout.trim() === '' ? '✓ Optimized' : '✗ Not Optimized';
+    const [wl, profile] = await Promise.all([
+      exec('dumpsys deviceidle whitelist 2>/dev/null | grep ' + GMS + ' | head -1'),
+      exec('cat "' + PROFILE_FILE + '" 2>/dev/null'),
+    ]);
+    const optimized = wl.stdout.trim() === '';
+    val.className = 'status-value ' + (optimized ? 'optimized' : 'not-optimized');
+    val.textContent = optimized ? '✓ Optimized' : '✗ Not Optimized';
+    const pName = (profile.stdout.trim() || 'balanced');
+    meta.textContent = 'profile: ' + pName;
   } catch(e) {
     val.className = 'status-value not-optimized';
     val.textContent = 'Error';
@@ -430,30 +691,42 @@ window.runAction = async function(action) {
   output.classList.add('visible');
   output.innerHTML = '<span class="info">Running...</span>';
   const commands = {
-    fix_messages: "cd /data/data && find . -type f -name '*gms*' -delete && echo 'Done. GMS cache cleared.'",
-    force_doze: 'dumpsys deviceidle whitelist -com.google.android.gms 2>&1 && echo "Done."'
+    fix_messages: [
+      'am force-stop ' + GMS,
+      'pm trim-caches 999G',
+      'find /data/data/' + GMS + '/cache -type f -delete 2>/dev/null',
+      'find /data/data/' + GMS + '/databases -name "gcm*" -delete 2>/dev/null',
+      'find /data/data/' + GMS + '/databases -name "fcm*" -delete 2>/dev/null',
+      'echo "Notification cache cleared."',
+    ].join(' && '),
+    force_doze: [
+      'dumpsys deviceidle whitelist -' + GMS + ' 2>&1',
+      'cmd deviceidle sys-whitelist -' + GMS + ' 2>/dev/null',
+      'cmd deviceidle except-idle-whitelist -' + GMS + ' 2>/dev/null',
+      'echo "Optimization re-applied."',
+    ].join('; '),
   };
   try {
     const { errno, stdout, stderr } = await exec(commands[action]);
     const out = (stdout || '') + (stderr || '');
-    output.innerHTML = `<span class="${errno === 0 ? 'ok' : 'err'}">${escapeHtml(out.trim() || 'Done.')}</span>`;
+    output.innerHTML = '<span class="' + (errno === 0 ? 'ok' : 'err') + '">' + escapeHtml(out.trim() || 'Done.') + '</span>';
     if (action === 'force_doze') setTimeout(() => window.checkStatus(), 800);
   } catch(e) {
-    output.innerHTML = `<span class="err">Error: ${escapeHtml(e)}</span>`;
+    output.innerHTML = '<span class="err">Error: ' + escapeHtml(e) + '</span>';
   }
 };
-
-const FMD = 'com.google.android.gms/com.google.android.gms.mdm.receivers.MdmDeviceAdminReceiver';
 
 window.checkFmdStatus = async function() {
   const title = document.getElementById('fmdTitle');
   const desc  = document.getElementById('fmdDesc');
   const btn   = document.getElementById('fmdBtn');
   try {
-    const { stdout } = await exec("pm query-receivers --components -a android.app.action.DEVICE_ADMIN_ENABLED 2>/dev/null | grep MdmDeviceAdminReceiver");
+    const { stdout } = await exec('pm query-receivers --components -a android.app.action.DEVICE_ADMIN_ENABLED 2>/dev/null | grep MdmDeviceAdminReceiver');
     const enabled = stdout.trim() !== '';
     title.textContent = enabled ? 'Disable Find My Device' : 'Enable Find My Device';
-    desc.textContent  = enabled ? 'MdmDeviceAdminReceiver is ENABLED — tap to disable (optional)' : 'MdmDeviceAdminReceiver is DISABLED — tap to enable';
+    desc.textContent  = enabled
+      ? 'MdmDeviceAdminReceiver is ENABLED — tap to disable'
+      : 'MdmDeviceAdminReceiver is DISABLED — tap to enable';
     btn.dataset.state = enabled ? 'enabled' : 'disabled';
   } catch(e) { desc.textContent = 'Could not check status'; }
 };
@@ -465,27 +738,90 @@ window.toggleFmd = async function() {
   output.classList.add('visible');
   output.innerHTML = '<span class="info">Running...</span>';
   const cmd = state === 'disabled'
-    ? `pm enable ${FMD} 2>&1 && echo "Find My Device enabled."`
-    : `pm disable ${FMD} 2>&1 && echo "Find My Device disabled."`;
+    ? 'pm enable ' + FMD_COMP + ' 2>&1 && echo "Find My Device enabled."'
+    : 'pm disable ' + FMD_COMP + ' 2>&1 && echo "Find My Device disabled."';
   try {
     const { errno, stdout, stderr } = await exec(cmd);
-    output.innerHTML = `<span class="${errno === 0 ? 'ok' : 'err'}">${escapeHtml((stdout||'')+(stderr||''))}</span>`;
+    output.innerHTML = '<span class="' + (errno === 0 ? 'ok' : 'err') + '">' + escapeHtml((stdout||'')+(stderr||'')) + '</span>';
     setTimeout(() => window.checkFmdStatus(), 500);
-  } catch(e) { output.innerHTML = `<span class="err">Error: ${escapeHtml(e)}</span>`; }
+  } catch(e) { output.innerHTML = '<span class="err">Error: ' + escapeHtml(e) + '</span>'; }
 };
 
-// ── Exemptions page ───────────────────────────────────────────
+const PROFILE_CMDS = {
+  balanced: [
+    'dumpsys deviceidle whitelist -' + GMS,
+    'cmd deviceidle sys-whitelist -' + GMS + ' 2>/dev/null',
+    'cmd deviceidle except-idle-whitelist -' + GMS + ' 2>/dev/null',
+    'cmd appops set ' + GMS + ' RUN_IN_BACKGROUND default 2>/dev/null',
+    'cmd appops set ' + GMS + ' RUN_ANY_IN_BACKGROUND default 2>/dev/null',
+    'cmd appops set ' + GMS + ' SCHEDULE_EXACT_ALARM default 2>/dev/null',
+    'cmd appops set ' + GMS + ' WAKE_LOCK default 2>/dev/null',
+    'dumpsys deviceidle whitelist +com.google.android.gsf 2>/dev/null',
+  ],
+  aggressive: [
+    'dumpsys deviceidle whitelist -' + GMS,
+    'cmd deviceidle sys-whitelist -' + GMS + ' 2>/dev/null',
+    'cmd deviceidle except-idle-whitelist -' + GMS + ' 2>/dev/null',
+    'cmd appops set ' + GMS + ' RUN_IN_BACKGROUND deny 2>/dev/null',
+    'cmd appops set ' + GMS + ' RUN_ANY_IN_BACKGROUND deny 2>/dev/null',
+    'cmd appops set ' + GMS + ' SCHEDULE_EXACT_ALARM deny 2>/dev/null',
+    'cmd appops set ' + GMS + ' WAKE_LOCK restrict 2>/dev/null',
+    'dumpsys deviceidle whitelist +com.google.android.gsf 2>/dev/null',
+  ],
+  gaming: [
+    'dumpsys deviceidle whitelist +' + GMS,
+    'cmd deviceidle sys-whitelist +' + GMS + ' 2>/dev/null',
+    'cmd appops set ' + GMS + ' RUN_IN_BACKGROUND allow 2>/dev/null',
+    'cmd appops set ' + GMS + ' RUN_ANY_IN_BACKGROUND allow 2>/dev/null',
+    'cmd appops set ' + GMS + ' SCHEDULE_EXACT_ALARM allow 2>/dev/null',
+    'cmd appops set ' + GMS + ' WAKE_LOCK allow 2>/dev/null',
+  ],
+};
+
+let currentProfile = 'balanced';
+
+async function refreshProfileUI() {
+  try {
+    const { stdout } = await exec('cat "' + PROFILE_FILE + '" 2>/dev/null');
+    currentProfile = stdout.trim() || 'balanced';
+  } catch(e) { currentProfile = 'balanced'; }
+  ['balanced','aggressive','gaming'].forEach(p => {
+    const card = document.getElementById('profile-' + p);
+    const badge = document.getElementById('badge-' + p);
+    card.classList.toggle('active-profile', p === currentProfile);
+    badge.style.display = p === currentProfile ? '' : 'none';
+  });
+}
+
+window.applyProfile = async function(profile) {
+  const output = document.getElementById('profile-output');
+  output.classList.add('visible');
+  output.innerHTML = '<span class="info">Applying ' + profile + ' profile...</span>';
+  try {
+    const cmd = PROFILE_CMDS[profile].join('; ');
+    const { errno, stdout, stderr } = await exec(cmd);
+    await exec("printf '" + profile + "' > \"" + PROFILE_FILE + '"');
+    currentProfile = profile;
+    refreshProfileUI();
+    const out = (stdout || '') + (stderr || '');
+    output.innerHTML = '<span class="ok">Profile "' + profile + '" applied.\n' + escapeHtml(out.trim()) + '</span>';
+    setTimeout(() => window.checkStatus(), 600);
+  } catch(e) {
+    output.innerHTML = '<span class="err">Error: ' + escapeHtml(e) + '</span>';
+  }
+};
+
 let allApps = [];
 
 async function loadConfig() {
-  const { errno, stdout } = await exec(`cat "${CONFIG}" 2>/dev/null`);
+  const { errno, stdout } = await exec('cat "' + CONFIG + '" 2>/dev/null');
   if (errno !== 0 || !stdout.trim()) return new Set();
   return new Set(stdout.trim().split('\n').filter(Boolean));
 }
 
 async function saveConfig(pkgs) {
   const content = [...pkgs].join('\n');
-  await exec(`printf '%s' '${content.replace(/'/g,"'\\''")}' > "${CONFIG}" 2>/dev/null`);
+  await exec("printf '%s' '" + content.replace(/'/g,"'\\''") + "' > \"" + CONFIG + '" 2>/dev/null');
 }
 
 async function getActiveExemptions() {
@@ -495,26 +831,21 @@ async function getActiveExemptions() {
 
 async function loadApps() {
   const list = document.getElementById('appList');
+  list.innerHTML = '<div style="color:var(--text-dim);font-size:11px;font-family:\'JetBrains Mono\',monospace;padding:8px;">Loading apps...</div>';
   try {
     const [pkgsRes, saved, active] = await Promise.all([
       exec('pm list packages -3 2>/dev/null'),
       loadConfig(),
-      getActiveExemptions()
+      getActiveExemptions(),
     ]);
-
     const pkgs = pkgsRes.stdout.trim().split('\n')
-      .map(l => l.replace('package:', '').trim())
-      .filter(Boolean)
-      .sort();
-
-    // Exempted = saved in config OR currently active in whitelist
+      .map(l => l.replace('package:','').trim())
+      .filter(Boolean).sort();
     allApps = pkgs.map(pkg => ({ pkg, exempted: saved.has(pkg) || active.has(pkg) }));
-
-    // Sort: exempted first
-    allApps.sort((a, b) => (b.exempted ? 1 : 0) - (a.exempted ? 1 : 0));
+    allApps.sort((a,b) => (b.exempted ? 1 : 0) - (a.exempted ? 1 : 0));
     renderApps(allApps);
   } catch(e) {
-    list.innerHTML = `<div style="color:var(--not-optimized);font-size:11px;padding:8px;">Error: ${escapeHtml(e)}</div>`;
+    list.innerHTML = '<div style="color:var(--not-optimized);font-size:11px;padding:8px;">Error: ' + escapeHtml(e) + '</div>';
   }
 }
 
@@ -525,21 +856,47 @@ function renderApps(apps) {
     return;
   }
   list.innerHTML = apps.map(({ pkg, exempted }) => {
-    const safePkg = pkg.replace(/'/g, "\\'");
-    return `
-    <div class="app-item ${exempted ? 'exempted' : ''}" id="app-${CSS.escape(pkg)}">
-      <div class="app-item-info">
-        <div class="app-item-name">${escapeHtml(pkg.split('.').pop())}</div>
-        <div class="app-item-pkg">${escapeHtml(pkg)}</div>
-      </div>
-      <button class="app-toggle ${exempted ? 'on' : ''}" onclick="toggleApp('${safePkg}', this)"></button>
-    </div>`;
+    const label = getLabel(pkg);
+    const initial = label[0].toUpperCase();
+    const color = avatarColor(pkg);
+    const safePkg = pkg.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return '<div class="app-item ' + (exempted ? 'exempted' : '') + '" id="app-' + CSS.escape(pkg) + '">' +
+      '<div class="app-avatar" style="background:' + color + '">' + initial + '</div>' +
+      '<div class="app-item-info">' +
+        '<div class="app-item-label">' + escapeHtml(label) + '</div>' +
+        '<div class="app-item-pkg">' + escapeHtml(pkg) + '</div>' +
+      '</div>' +
+      '<button class="app-toggle ' + (exempted ? 'on' : '') + '" onclick="toggleApp(\'' + safePkg + '\', this)"></button>' +
+    '</div>';
   }).join('');
 }
 
 window.filterApps = function() {
   const q = document.getElementById('appSearch').value.toLowerCase();
-  renderApps(q ? allApps.filter(a => a.pkg.toLowerCase().includes(q)) : allApps);
+  if (!q) { renderApps(allApps); return; }
+  renderApps(allApps.filter(a =>
+    a.pkg.toLowerCase().includes(q) || getLabel(a.pkg).toLowerCase().includes(q)
+  ));
+};
+
+window.autoDetectMessaging = async function() {
+  if (allApps.length === 0) await loadApps();
+  let added = 0;
+  const toAdd = allApps.filter(a => MESSAGING_PKGS.has(a.pkg) && !a.exempted);
+  if (toAdd.length === 0) { toast('No new messaging apps found to exempt'); return; }
+  for (const app of toAdd) {
+    try {
+      await exec('dumpsys deviceidle whitelist +' + app.pkg + ' 2>/dev/null');
+      await exec('cmd appops set ' + app.pkg + ' RUN_IN_BACKGROUND allow 2>/dev/null');
+      await exec('cmd appops set ' + app.pkg + ' RUN_ANY_IN_BACKGROUND allow 2>/dev/null');
+      app.exempted = true;
+      added++;
+    } catch(e) {}
+  }
+  const exempted = new Set(allApps.filter(a => a.exempted).map(a => a.pkg));
+  await saveConfig(exempted);
+  renderApps(allApps);
+  toast(added + ' messaging app(s) auto-exempted');
 };
 
 window.toggleApp = async function(pkg, btn) {
@@ -550,39 +907,68 @@ window.toggleApp = async function(pkg, btn) {
   const adding = !app.exempted;
   try {
     if (adding) {
-      await exec(`dumpsys deviceidle whitelist +${pkg} 2>/dev/null`);
-      await exec(`cmd appops set ${pkg} RUN_IN_BACKGROUND allow 2>/dev/null`);
-      await exec(`cmd appops set ${pkg} RUN_ANY_IN_BACKGROUND allow 2>/dev/null`);
+      await exec('dumpsys deviceidle whitelist +' + pkg + ' 2>/dev/null');
+      await exec('cmd appops set ' + pkg + ' RUN_IN_BACKGROUND allow 2>/dev/null');
+      await exec('cmd appops set ' + pkg + ' RUN_ANY_IN_BACKGROUND allow 2>/dev/null');
     } else {
-      await exec(`dumpsys deviceidle whitelist -${pkg} 2>/dev/null`);
-      await exec(`cmd appops set ${pkg} RUN_IN_BACKGROUND default 2>/dev/null`);
-      await exec(`cmd appops set ${pkg} RUN_ANY_IN_BACKGROUND default 2>/dev/null`);
+      await exec('dumpsys deviceidle whitelist -' + pkg + ' 2>/dev/null');
+      await exec('cmd appops set ' + pkg + ' RUN_IN_BACKGROUND default 2>/dev/null');
+      await exec('cmd appops set ' + pkg + ' RUN_ANY_IN_BACKGROUND default 2>/dev/null');
     }
     app.exempted = adding;
     btn.classList.toggle('on', adding);
     item.classList.toggle('exempted', adding);
-    // Save updated config
     const exempted = new Set(allApps.filter(a => a.exempted).map(a => a.pkg));
     await saveConfig(exempted);
-    // Clear GMS cache after changing exemptions
-    await exec("cd /data/data && find . -type f -name '*gms*' -delete 2>/dev/null");
-    toast(adding ? `${pkg} exempted` : `${pkg} restored`);
+    toast(adding ? pkg + ' exempted' : pkg + ' restored');
   } catch(e) { toast('Error: ' + e); }
   btn.disabled = false;
 };
 
-// ── Init ──────────────────────────────────────────────────────
+let activeLogSource = 'doze';
+
+window.loadLog = async function(source, btn) {
+  document.querySelectorAll('.log-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeLogSource = source;
+  const area = document.getElementById('logArea');
+  area.textContent = 'Loading...';
+  const cmds = {
+    doze: 'dumpsys deviceidle 2>&1',
+    install: 'cat /data/adb/modules/gms-optimizer-reborn/install.log 2>/dev/null || echo "No install log found."',
+    appops: 'cmd appops get ' + GMS + ' 2>&1',
+  };
+  try {
+    const { stdout, stderr } = await exec(cmds[source]);
+    area.textContent = (stdout || '') + (stderr || '') || '(empty)';
+  } catch(e) {
+    area.textContent = 'Error: ' + e;
+  }
+};
+
+async function detectOOS() {
+  try {
+    const { stdout } = await exec('getprop ro.product.brand 2>/dev/null; getprop ro.vendor.oplus.market.name 2>/dev/null');
+    const out = stdout.toLowerCase();
+    if (out.includes('oneplus') || out.includes('oxygenow') || out.includes('oxygen')) {
+      document.getElementById('oosBanner').classList.add('visible');
+    }
+  } catch(e) {}
+}
+
 window.checkStatus();
 window.checkFmdStatus();
+detectOOS();
+refreshProfileUI();
 
 (async function() {
   try {
-    const { stdout } = await exec(`grep -E '^version=|^maintainer=' ${MOD}/module.prop 2>/dev/null`);
-    const version    = (stdout.match(/^version=(.+)/m) || [])[1] || '';
-    const maintainer = (stdout.match(/^maintainer=(.+)/m) || [])[1] || '';
+    const { stdout } = await exec('grep -E "^version=|^author=" ' + MOD + '/module.prop 2>/dev/null');
+    const version = (stdout.match(/^version=(.+)/m) || [])[1] || '';
+    const author  = (stdout.match(/^author=(.+)/m) || [])[1] || '';
     const parts = [];
-    if (version)    parts.push('v' + version.trim());
-    if (maintainer) parts.push('maintainer: ' + maintainer.trim());
+    if (version) parts.push('v' + version.trim());
+    if (author)  parts.push('by ' + author.trim());
     document.getElementById('subtitle').textContent = parts.join(' · ') || 'GMS Optimizer Reborn';
   } catch(e) { document.getElementById('subtitle').textContent = 'GMS Optimizer Reborn'; }
 })();
