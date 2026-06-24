@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Universal GMS Doze</title>
+<title>GMS Optimizer Reborn</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
 
@@ -311,7 +311,7 @@
 <header>
   <div class="logo-line">
     <div class="logo-dot"></div>
-    <h1>Universal GMS Doze</h1>
+    <h1>GMS Optimizer Reborn</h1>
   </div>
   <div class="subtitle" id="subtitle">loading...</div>
 </header>
@@ -377,12 +377,12 @@
 </div>
 
 <footer>
-  fork of <a href="https://github.com/gloeyisk/universal-gms-doze">gloeyisk/universal-gms-doze</a>
-  · <a href="https://github.com/MarsPatrick/universal-gms-doze">source</a>
+  fork of <a href="https://github.com/gloeyisk/gms-optimizer-reborn">gloeyisk/gms-optimizer-reborn</a>
+  · <a href="https://github.com/MarsPatrick/gms-optimizer-reborn">source</a>
 </footer>
 
 <script>
-const MOD = '/data/adb/modules/universal-gms-doze';
+const MOD = '/data/adb/modules/gms-optimizer-reborn';
 const CONFIG = MOD + '/exemptions.conf';
 
 let _cbId = 0;
@@ -583,8 +583,8 @@ window.checkFmdStatus();
     const parts = [];
     if (version)    parts.push('v' + version.trim());
     if (maintainer) parts.push('maintainer: ' + maintainer.trim());
-    document.getElementById('subtitle').textContent = parts.join(' · ') || 'Universal GMS Doze';
-  } catch(e) { document.getElementById('subtitle').textContent = 'Universal GMS Doze'; }
+    document.getElementById('subtitle').textContent = parts.join(' · ') || 'GMS Optimizer Reborn';
+  } catch(e) { document.getElementById('subtitle').textContent = 'GMS Optimizer Reborn'; }
 })();
 </script>
 

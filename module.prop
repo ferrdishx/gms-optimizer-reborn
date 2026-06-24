@@ -1,9 +1,8 @@
-id=universal-gms-doze
-name=Universal GMS Doze
-version=1.9.10
-versionCode=1910
-author=gloeyisk
-maintainer=MarsPatrick
-description=Patches Google Play services app and certain processes/services to be able to use battery optimizations
-updateJson=https://raw.githubusercontent.com/MarsPatrick/universal-gms-doze/master/module.json
+id=gms-optimizer-reborn
+name=GMS Optimizer Reborn
+version=1.0.0
+versionCode=100
+author=ferrdishx
+description=Forces Google Play Services into battery optimization, enabling real Doze mode savings
+updateJson=https://raw.githubusercontent.com/ferrdishx/universal-gms-doze/master/module.json
 support_ksu=true

@@ -1,73 +1,128 @@
-# Universal GMS Doze
+<div align="center">
 
-> **Note:** This is an unofficial fork of [gloeyisk/universal-gms-doze](https://github.com/gloeyisk/universal-gms-doze).
-> The original project appears to be unmaintained. This fork only attempts to adapt compatibility
-> for newer Android versions (15+) and KernelSU. No new features are intended.
+# GMS Optimizer Reborn
 
-## Overview
-- Patches Google Play services app and certain processes/services to be able to use battery optimization
-- Support API 23 or later
-- Support Magisk, KernelSU, and APatch root implementations
-- WebUI available
+**Forces Google Play Services into battery optimization, enabling real Doze mode savings.**
 
-> **KernelSU 3.x (32302+) users:** KernelSU 3.x introduced a new [Metamodule](https://kernelsu.org/guide/metamodule.html) system. Without a metamodule installed, **modules will NOT be mounted**. Before installing this module, you must first install [meta-overlayfs](https://github.com/KernelSU-Modules-Repo/meta-overlayfs/releases) or another compatible metamodule.
->
-> **KernelSU legacy (22091 and below):** Works out of the box, no metamodule required.
->
-> **OnePlus OxygenOS 16 users:** it appears that com.google.android.gms cannot be modified because the system won't allow it; investigation in progress (If this module won't work, try [Frosty](https://github.com/xizt159/Frosty))
+[![GitHub Release](https://img.shields.io/github/v/release/ferrdishx/universal-gms-doze?style=for-the-badge&color=00ff9d&labelColor=0a0a0f)](https://github.com/ferrdishx/universal-gms-doze/releases)
+[![License](https://img.shields.io/github/license/ferrdishx/universal-gms-doze?style=for-the-badge&color=00ff9d&labelColor=0a0a0f)](LICENSE)
+[![Android](https://img.shields.io/badge/Android-6.0%2B-00ff9d?style=for-the-badge&labelColor=0a0a0f)](https://github.com/ferrdishx/universal-gms-doze/releases)
+
+</div>
+
+---
+
+## What It Does
+
+By default, Android whitelists Google Play Services from battery optimization, preventing Doze mode from working properly. This module removes that exemption system-wide, patches relevant sysconfig XMLs, and ensures the state persists across reboots.
+
+- Patches sysconfig XML files across all partitions
+- Removes GMS from both user-tier and system-tier Doze whitelists
+- Persists changes via `deviceidle.xml` injection on every boot
+- Keeps Google Services Framework (GSF) whitelisted for push notifications
+- Disables Find My Device admin receivers
+- Includes `gmsc` binary for quick status check
+
+---
+
+## Requirements
+
+| | |
+|---|---|
+| Android | 6.0+ (API 23+) |
+| Root | Magisk, KernelSU or APatch |
+
+> **KernelSU 3.x (32302+):** Requires [meta-overlayfs](https://github.com/KernelSU-Modules-Repo/meta-overlayfs/releases) or another compatible metamodule installed first.
+
+---
+
+## Installation
+
+1. Download the latest `.zip` from [Releases](https://github.com/ferrdishx/universal-gms-doze/releases)
+2. Open **Magisk / KernelSU / APatch**
+3. Tap **Install from storage** and select the zip
+4. Reboot
+
+> Installation from recovery is **not supported**.
+
+---
+
 ## WebUI
-The module includes a built-in WebUI accessible from the KernelSU module page.
 
-Features:
-- GMS optimization status indicator
-- Fix delayed notifications (clears GMS cache)
-- Find My Device toggle (enable/disable)
-- Force re-apply optimization
+Available directly from the KernelSU module page.
 
-## Download Links
-- [GitHub Releases](https://github.com/MarsPatrick/universal-gms-doze/releases)
+| Feature | Description |
+|---|---|
+| Status | Shows whether GMS is currently optimized |
+| Fix Notifications | Clears GMS cache to resolve delayed messages |
+| Find My Device | Toggle to disable/enable the admin receiver |
+| Force Re-apply | Reapplies optimization without rebooting |
+
+---
+
+## Verification
+
+Run in a root shell:
+
+```sh
+gmsc
+```
+
+Or check manually:
+
+```sh
+dumpsys deviceidle
+```
+
+Look for the `Whitelist (except idle) system apps:` section — if `com.google.android.gms` is absent, it's optimized.
+
+---
+
+## Exemptions
+
+To whitelist specific packages from Doze (e.g. messaging apps), create:
+
+```
+/data/adb/modules/gms-optimizer-reborn/exemptions.conf
+```
+
+One package name per line:
+
+```
+com.whatsapp
+com.telegram.messenger
+```
+
+---
 
 ## Troubleshooting
 
-> All actions below can also be performed from the built-in WebUI without needing a terminal.
+**Delayed notifications after install**
 
-- Command-line for check optimization (with module installed):
-```
-> su
-> gmsc
-```
-- Command-line for check optimization (in general):   
-There's a line written `Whitelist (except idle) system apps:` and if `com.google.android.gms` line does not exist it means Google Play services is optimized.
-```
-> su
-> dumpsys deviceidle
-```
-- Command-line for fix delayed incoming messages issue:   
-If the issue still persists, move the app to Not Optimized battery usage.
-```
-> su
-> cd /data/data
-> find . -type f -name '*gms*' -delete
-```
-- Command-line for disable Find My Device (optional):
-```
-> su
-> pm disable com.google.android.gms/com.google.android.gms.mdm.receivers.MdmDeviceAdminReceiver
+```sh
+su
+cd /data/data
+find . -type f -name '*gms*' -delete
 ```
 
-## Tested Devices
+Or use the **Fix Notifications** button in the WebUI.
 
-| Device | Codename | ROM | Android | Kernel | KernelSU |
-|--------|----------|-----|---------|--------|----------|
-| Pixel 7 Pro | cheetah | crDroid 11.6 | 15 | blu_spark 256 | KernelSU 3.1.0 GKI |
-| Pixel 7 Pro | cheetah | crDroid 12.9 | 16 | blu_spark 263 | KernelSU 3.2.4 GKI |
-| Xiaomi Mi 10 | umi | PixelOS 16.2 | 16 | N0Kernel v16.4.9 v2 | KernelSU Next 1.1.1 hotfix |
+**Disable Find My Device manually**
+
+```sh
+su -c "pm disable com.google.android.gms/com.google.android.gms.mdm.receivers.MdmDeviceAdminReceiver"
+```
+
+---
 
 ## Credits
-- [gloeyisk](https://github.com/gloeyisk/universal-gms-doze) / Original author
-- topjohnwu / Magisk - Magisk Module Template
-- JumbomanXDA, MrCarb0n / Script fixer and helper
 
-## Extras (From Original Author)
-- Donations: [PayPal](https://paypal.me/gloeyisk) - [LiberaPay](https://liberapay.com/gloeyisk) - [Ko-fi](https://ko-fi.com/gloeyisk)
-- Support Thread: [XDA Developers](https://forum.xda-developers.com/apps/magisk/module-universal-gms-doze-t3853710)
+- [gloeyisk](https://github.com/gloeyisk/universal-gms-doze) — original author
+- [MarsPatrick](https://github.com/MarsPatrick/universal-gms-doze) — Android 15+ & KernelSU compatibility
+- topjohnwu — Magisk Module Template
+
+---
+
+<div align="center">
+<sub>Fork of MarsPatrick/universal-gms-doze · GPL-2.0</sub>
+</div>
