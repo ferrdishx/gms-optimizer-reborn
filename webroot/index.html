@@ -2,626 +2,661 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>GMS Optimizer Reborn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
-
-  :root {
-    --bg: #0a0a0f;
-    --surface: #111118;
-    --border: #1e1e2e;
-    --accent: #00ff9d;
-    --accent-dim: rgba(0,255,157,0.12);
-    --accent-glow: rgba(0,255,157,0.25);
-    --warn: #ff6b35;
-    --warn-dim: rgba(255,107,53,0.12);
-    --danger: #ff4466;
-    --danger-dim: rgba(255,68,102,0.12);
-    --blue: #4fa3ff;
-    --blue-dim: rgba(79,163,255,0.12);
-    --text: #e0e0f0;
-    --text-dim: #606080;
-    --optimized: #00ff9d;
-    --not-optimized: #ff4466;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    min-height: 100vh;
-    padding: 20px 16px 40px;
-  }
-
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
-    pointer-events: none; z-index: 999;
-  }
-
-  header { margin-bottom: 20px; }
-
-  .logo-line { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
-
-  .logo-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 8px var(--accent-glow);
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--accent-glow); }
-    50% { opacity: 0.5; box-shadow: 0 0 2px var(--accent-glow); }
-  }
-
-  h1 {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 15px; font-weight: 700;
-    color: var(--accent);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .subtitle {
-    font-size: 11px; color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
-    letter-spacing: 0.04em;
-    padding-left: 18px;
-  }
-
-  .warn-banner {
-    background: var(--warn-dim);
-    border: 1px solid var(--warn);
-    border-radius: 8px;
-    padding: 10px 14px;
-    margin-bottom: 16px;
-    font-size: 11px;
-    color: var(--warn);
-    line-height: 1.5;
-    display: none;
-  }
-
-  .warn-banner a { color: var(--warn); }
-  .warn-banner.visible { display: block; }
-
-  .tabs {
-    display: flex; gap: 4px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .tab {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    background: none; border: none;
-    border-bottom: 2px solid transparent;
-    padding: 8px 12px; cursor: pointer;
-    margin-bottom: -1px;
-    transition: color 0.2s, border-color 0.2s;
-  }
-
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-  .tab:hover:not(.active) { color: var(--text); }
-
-  .page { display: none; }
-  .page.active { display: block; }
-
-  .status-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 20px; margin-bottom: 16px;
-    position: relative; overflow: hidden;
-  }
-
-  .status-card::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    opacity: 0.4;
-  }
-
-  .status-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; color: var(--text-dim);
-    letter-spacing: 0.12em; text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-
-  .status-value {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 22px; font-weight: 700;
-    letter-spacing: 0.04em;
-    transition: color 0.3s, text-shadow 0.3s;
-  }
-
-  .status-value.optimized { color: var(--optimized); text-shadow: 0 0 20px rgba(0,255,157,0.4); }
-  .status-value.not-optimized { color: var(--not-optimized); text-shadow: 0 0 20px rgba(255,68,102,0.4); }
-  .status-value.loading { color: var(--text-dim); text-shadow: none; }
-
-  .status-meta {
-    margin-top: 8px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; color: var(--text-dim);
-  }
-
-  .refresh-btn {
-    position: absolute; top: 16px; right: 16px;
-    background: none; border: 1px solid var(--border);
-    color: var(--text-dim);
-    width: 32px; height: 32px; border-radius: 6px;
-    cursor: pointer; font-size: 14px;
-    display: flex; align-items: center; justify-content: center;
-    transition: border-color 0.2s, color 0.2s;
-  }
-
-  .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .refresh-btn.spinning { animation: spin 0.6s linear infinite; }
-
-  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-  .section-title {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; color: var(--text-dim);
-    letter-spacing: 0.12em; text-transform: uppercase;
-    margin-bottom: 10px; margin-top: 24px;
-  }
-
-  .actions { display: flex; flex-direction: column; gap: 10px; }
-
-  .action-btn {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px 16px;
-    cursor: pointer; text-align: left;
-    transition: border-color 0.2s, background 0.2s;
-    position: relative; overflow: hidden;
-    width: 100%;
-  }
-
-  .action-btn:hover { border-color: var(--accent); background: var(--accent-dim); }
-  .action-btn:active { transform: scale(0.99); }
-  .action-btn.warn:hover { border-color: var(--warn); background: var(--warn-dim); }
-
-  .btn-title {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px; font-weight: 600;
-    color: var(--text); margin-bottom: 3px;
-  }
-
-  .btn-desc { font-size: 11px; color: var(--text-dim); line-height: 1.4; }
-
-  .btn-icon {
-    position: absolute; right: 16px; top: 50%;
-    transform: translateY(-50%);
-    font-size: 18px; opacity: 0.4;
-  }
-
-  .output {
-    margin-top: 16px;
-    background: #07070d;
-    border: 1px solid var(--border);
-    border-radius: 8px; padding: 14px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; line-height: 1.6;
-    color: var(--text-dim);
-    min-height: 60px; max-height: 200px;
-    overflow-y: auto;
-    white-space: pre-wrap; word-break: break-all;
-    display: none;
-  }
-
-  .output.visible { display: block; }
-  .output .ok { color: var(--accent); }
-  .output .err { color: var(--not-optimized); }
-  .output .info { color: #888; }
-
-  .profile-grid { display: flex; flex-direction: column; gap: 10px; }
-
-  .profile-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px; padding: 16px;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
-    position: relative;
-  }
-
-  .profile-card.active-profile { border-color: var(--accent); background: var(--accent-dim); }
-  .profile-card.active-profile.aggressive { border-color: var(--warn); background: var(--warn-dim); }
-  .profile-card.active-profile.gaming { border-color: var(--blue); background: var(--blue-dim); }
-
-  .profile-card:hover:not(.active-profile) { border-color: #333350; }
-
-  .profile-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-
-  .profile-icon { font-size: 20px; }
-
-  .profile-name {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px; font-weight: 700;
-    color: var(--text);
-  }
-
-  .profile-badge {
-    margin-left: auto;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px; letter-spacing: 0.1em;
-    padding: 2px 8px; border-radius: 4px;
-    background: var(--border); color: var(--text-dim);
-    text-transform: uppercase;
-  }
-
-  .active-profile .profile-badge { background: var(--accent); color: #000; }
-  .active-profile.aggressive .profile-badge { background: var(--warn); color: #000; }
-  .active-profile.gaming .profile-badge { background: var(--blue); color: #000; }
-
-  .profile-desc { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
-
-  .profile-features { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
-
-  .profile-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px; letter-spacing: 0.06em;
-    padding: 3px 7px; border-radius: 4px;
-    background: var(--border); color: var(--text-dim);
-    text-transform: uppercase;
-  }
-
-  .search-input {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 10px 12px;
-    color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px; outline: none;
-    margin-bottom: 8px;
-    transition: border-color 0.2s;
-  }
-
-  .search-input:focus { border-color: var(--accent); }
-
-  .exempt-toolbar {
-    display: flex; gap: 8px; margin-bottom: 12px;
-  }
-
-  .detect-btn {
-    flex: 1;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 9px 12px;
-    cursor: pointer; color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; font-weight: 600;
-    transition: border-color 0.2s, background 0.2s;
-    text-align: center;
-  }
-
-  .detect-btn:hover { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
-
-  .app-list { max-height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
-
-  .app-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px; padding: 10px 14px;
-    display: flex; align-items: center; gap: 12px;
-    transition: border-color 0.2s;
-  }
-
-  .app-item.exempted { border-color: var(--accent); background: var(--accent-dim); }
-
-  .app-avatar {
-    width: 36px; height: 36px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 14px; font-weight: 700;
-    flex-shrink: 0; color: #000;
-  }
-
-  .app-item-info { flex: 1; min-width: 0; }
-
-  .app-item-label {
-    font-family: 'Inter', sans-serif;
-    font-size: 13px; font-weight: 500;
-    color: var(--text);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-
-  .app-item-pkg {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; color: var(--text-dim);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    margin-top: 2px;
-  }
-
-  .app-toggle {
-    width: 36px; height: 20px; border-radius: 10px;
-    border: none; cursor: pointer; position: relative;
-    transition: background 0.2s; flex-shrink: 0;
-    background: var(--border);
-  }
-
-  .app-toggle.on { background: var(--accent); }
-
-  .app-toggle::after {
-    content: '';
-    position: absolute;
-    width: 14px; height: 14px; border-radius: 50%;
-    background: white; top: 3px; left: 3px;
-    transition: transform 0.2s;
-  }
-
-  .app-toggle.on::after { transform: translateX(16px); }
-  .app-toggle:disabled { opacity: 0.5; cursor: wait; }
-
-  .log-area {
-    background: #07070d;
-    border: 1px solid var(--border);
-    border-radius: 8px; padding: 14px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; line-height: 1.6;
-    color: var(--text-dim);
-    height: 380px; overflow-y: auto;
-    white-space: pre-wrap; word-break: break-all;
-  }
-
-  .log-toolbar { display: flex; gap: 8px; margin-bottom: 12px; }
-
-  .log-btn {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px; padding: 8px 12px;
-    cursor: pointer; color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; font-weight: 600;
-    letter-spacing: 0.06em; text-transform: uppercase;
-    transition: border-color 0.2s, color 0.2s;
-  }
-
-  .log-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .log-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
-
-  footer {
-    margin-top: 36px; text-align: center;
-    font-size: 10px; color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
-    letter-spacing: 0.06em;
-  }
-
-  footer a { color: var(--accent); text-decoration: none; opacity: 0.7; }
+:root {
+  --md-primary: #7CFBAF;
+  --md-on-primary: #00391C;
+  --md-primary-container: #00522A;
+  --md-on-primary-container: #99F9C8;
+  --md-secondary: #B3CCBE;
+  --md-on-secondary: #1E352A;
+  --md-secondary-container: #354B40;
+  --md-on-secondary-container: #D0E8D9;
+  --md-tertiary: #A3CFDB;
+  --md-error: #FFB4AB;
+  --md-on-error: #690005;
+  --md-error-container: #93000A;
+  --md-on-error-container: #FFDAD6;
+  --md-warn: #FFB963;
+  --md-warn-container: #4A2B00;
+  --md-on-warn-container: #FFDDB0;
+  --md-bg: #0B0F0D;
+  --md-surface: #0B0F0D;
+  --md-s1: #151C18;
+  --md-s2: #19221E;
+  --md-s3: #1D2923;
+  --md-s4: #1F2C26;
+  --md-s5: #22302A;
+  --md-on-surface: #DCE5DF;
+  --md-on-surface-var: #BFC9C2;
+  --md-outline: #899490;
+  --md-outline-var: #3D4A46;
+  --md-scrim: rgba(0,0,0,0.6);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{height:100%}
+body{
+  background:var(--md-bg);
+  color:var(--md-on-surface);
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:14px;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  padding-bottom:80px;
+}
+a{color:var(--md-primary);text-decoration:none}
+
+/* ── Typography ── */
+.display-sm{font-size:36px;font-weight:400;line-height:1.2;letter-spacing:0}
+.title-lg{font-size:22px;font-weight:400;line-height:1.3}
+.title-md{font-size:16px;font-weight:500;line-height:1.5;letter-spacing:.01em}
+.title-sm{font-size:14px;font-weight:500;line-height:1.4;letter-spacing:.01em}
+.label-lg{font-size:14px;font-weight:500;letter-spacing:.01em}
+.label-md{font-size:12px;font-weight:500;letter-spacing:.05em}
+.label-sm{font-size:11px;font-weight:500;letter-spacing:.05em}
+.body-md{font-size:14px;font-weight:400;line-height:1.5}
+.body-sm{font-size:12px;font-weight:400;line-height:1.5}
+.mono{font-family:'JetBrains Mono',monospace}
+
+/* ── Layout ── */
+.top-bar{
+  padding:16px 16px 8px;
+  display:flex;align-items:center;gap:12px;
+  background:color-mix(in srgb,var(--md-s2) 90%,transparent);
+  backdrop-filter:blur(8px);
+  position:sticky;top:0;z-index:10;
+  border-bottom:1px solid var(--md-outline-var);
+}
+.top-bar-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--md-primary-container);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+}
+.top-bar-text{flex:1;min-width:0}
+.top-bar-text h1{
+  font-size:16px;font-weight:600;
+  color:var(--md-on-surface);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.top-bar-text .sub{font-size:11px;color:var(--md-on-surface-var);margin-top:1px}
+
+.warn-banner{
+  margin:12px 16px 0;
+  background:var(--md-warn-container);
+  border:1px solid color-mix(in srgb,var(--md-warn) 40%,transparent);
+  border-radius:12px;padding:12px 14px;
+  color:var(--md-on-warn-container);
+  font-size:12px;line-height:1.5;display:none;
+}
+.warn-banner.show{display:block}
+
+.pages{flex:1;padding:16px}
+.page{display:none;animation:fadeIn .2s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ── Bottom Nav ── */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--md-s2);
+  border-top:1px solid var(--md-outline-var);
+  display:flex;
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  z-index:100;
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  padding:12px 4px 8px;gap:4px;
+  border:none;background:none;cursor:pointer;
+  color:var(--md-on-surface-var);
+  transition:color .2s;
+  position:relative;
+}
+.nav-item.active{color:var(--md-primary)}
+.nav-item .nav-indicator{
+  position:absolute;top:8px;
+  width:64px;height:32px;border-radius:16px;
+  background:transparent;transition:background .2s;
+}
+.nav-item.active .nav-indicator{background:var(--md-primary-container)}
+.nav-icon{font-size:20px;position:relative;z-index:1}
+.nav-label{font-size:10px;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+
+/* ── Cards ── */
+.card{
+  background:var(--md-s2);
+  border-radius:28px;
+  border:1px solid var(--md-outline-var);
+  overflow:hidden;
+}
+.card-sm{border-radius:16px}
+.card+.card,.card+.section-head,.section-head+.card{margin-top:12px}
+
+/* ── Status Card ── */
+.status-card{
+  background:var(--md-primary-container);
+  border-radius:28px;padding:24px;
+  border:1px solid color-mix(in srgb,var(--md-primary) 30%,transparent);
+  position:relative;overflow:hidden;transition:background .4s;
+}
+.status-card.bad{
+  background:var(--md-error-container);
+  border-color:color-mix(in srgb,var(--md-error) 30%,transparent);
+}
+.status-card .label-sm{
+  color:var(--md-on-primary-container);
+  text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;
+}
+.status-card.bad .label-sm{color:var(--md-on-error-container)}
+.status-card .status-val{
+  font-size:32px;font-weight:600;
+  color:var(--md-primary);
+  font-family:'JetBrains Mono',monospace;
+}
+.status-card.bad .status-val{color:var(--md-error)}
+.status-card .status-profile{
+  margin-top:6px;font-size:12px;
+  color:color-mix(in srgb,var(--md-on-primary-container) 70%,transparent);
+}
+.status-card.bad .status-profile{
+  color:color-mix(in srgb,var(--md-on-error-container) 70%,transparent);
+}
+.refresh-fab{
+  position:absolute;top:16px;right:16px;
+  width:40px;height:40px;border-radius:12px;
+  background:color-mix(in srgb,var(--md-primary) 12%,transparent);
+  border:1px solid color-mix(in srgb,var(--md-primary) 24%,transparent);
+  color:var(--md-primary);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;cursor:pointer;transition:background .2s;
+}
+.status-card.bad .refresh-fab{
+  background:color-mix(in srgb,var(--md-error) 12%,transparent);
+  border-color:color-mix(in srgb,var(--md-error) 24%,transparent);
+  color:var(--md-error);
+}
+.refresh-fab:hover{background:color-mix(in srgb,var(--md-primary) 20%,transparent)}
+.refresh-fab.spinning{animation:spin .5s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Metrics Grid ── */
+.metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.metric-card{
+  background:var(--md-s3);border:1px solid var(--md-outline-var);
+  border-radius:16px;padding:14px 10px;text-align:center;
+}
+.metric-val{
+  font-family:'JetBrains Mono',monospace;
+  font-size:22px;font-weight:600;
+  color:var(--md-primary);line-height:1;
+}
+.metric-val.loading{color:var(--md-outline)}
+.metric-lbl{font-size:10px;color:var(--md-on-surface-var);margin-top:4px;letter-spacing:.04em;text-transform:uppercase}
+
+/* ── Kill Button ── */
+.kill-btn{
+  width:100%;margin-top:12px;
+  background:var(--md-error-container);
+  border:1px solid color-mix(in srgb,var(--md-error) 30%,transparent);
+  border-radius:16px;padding:16px;
+  color:var(--md-on-error-container);
+  display:flex;align-items:center;gap:12px;
+  cursor:pointer;transition:filter .15s;
+  font-size:14px;font-weight:600;
+}
+.kill-btn:hover{filter:brightness(1.1)}
+.kill-btn:active{filter:brightness(0.9);transform:scale(0.99)}
+.kill-icon{font-size:22px;flex-shrink:0}
+
+/* ── Section heading ── */
+.section-head{
+  font-size:11px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--md-on-surface-var);
+  padding:20px 0 8px;
+}
+
+/* ── Action Rows ── */
+.action-list{display:flex;flex-direction:column;gap:8px}
+.action-row{
+  background:var(--md-s2);border:1px solid var(--md-outline-var);
+  border-radius:16px;padding:14px 16px;
+  display:flex;align-items:center;gap:14px;
+  cursor:pointer;transition:background .15s,border-color .15s;
+  width:100%;text-align:left;
+}
+.action-row:hover{background:var(--md-s3);border-color:var(--md-on-surface-var)}
+.action-row:active{transform:scale(0.99)}
+.action-row-text{flex:1;min-width:0}
+.action-row-title{font-size:14px;font-weight:500;color:var(--md-on-surface)}
+.action-row-desc{font-size:12px;color:var(--md-on-surface-var);margin-top:2px;line-height:1.4}
+.action-icon{font-size:22px;flex-shrink:0;width:24px;text-align:center}
+.action-chevron{font-size:14px;color:var(--md-outline);flex-shrink:0}
+
+/* ── Output console ── */
+.console{
+  margin-top:12px;
+  background:#060A08;border:1px solid var(--md-outline-var);
+  border-radius:16px;padding:14px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.6;
+  color:var(--md-on-surface-var);max-height:180px;overflow-y:auto;
+  white-space:pre-wrap;word-break:break-all;display:none;
+}
+.console.show{display:block}
+.ok{color:var(--md-primary)}
+.err{color:var(--md-error)}
+.dim{color:var(--md-outline)}
+
+/* ── Profile Cards ── */
+.profile-stack{display:flex;flex-direction:column;gap:10px}
+.profile-card{
+  background:var(--md-s2);border:2px solid var(--md-outline-var);
+  border-radius:20px;padding:18px;cursor:pointer;
+  transition:border-color .2s,background .2s;
+  position:relative;overflow:hidden;
+}
+.profile-card.selected{border-color:var(--md-primary);background:color-mix(in srgb,var(--md-primary-container) 60%,var(--md-s2))}
+.profile-card.aggressive.selected{border-color:var(--md-warn);background:color-mix(in srgb,var(--md-warn-container) 60%,var(--md-s2))}
+.profile-card.gaming.selected{border-color:var(--md-tertiary);background:color-mix(in srgb,#394664 60%,var(--md-s2))}
+.profile-header{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.profile-icon{font-size:24px;flex-shrink:0}
+.profile-name{font-size:16px;font-weight:600;color:var(--md-on-surface);flex:1}
+.profile-chip{
+  font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  padding:3px 10px;border-radius:8px;
+  background:var(--md-primary-container);color:var(--md-on-primary-container);
+  display:none;
+}
+.profile-card.selected .profile-chip{display:block}
+.profile-card.aggressive.selected .profile-chip{background:var(--md-warn-container);color:var(--md-on-warn-container)}
+.profile-card.gaming.selected .profile-chip{background:#394664;color:var(--md-on-tertiary-container,#D7E2FF)}
+.profile-desc{font-size:12px;color:var(--md-on-surface-var);line-height:1.5}
+.profile-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.profile-tag{
+  font-size:10px;letter-spacing:.04em;
+  padding:3px 8px;border-radius:6px;
+  background:var(--md-s4);color:var(--md-on-surface-var);
+  border:1px solid var(--md-outline-var);
+}
+.profile-feedback{
+  display:none;margin-top:12px;
+  background:var(--md-primary-container);
+  border-radius:12px;padding:12px 16px;
+  color:var(--md-on-primary-container);font-size:13px;font-weight:500;
+  align-items:center;gap:10px;
+}
+.profile-feedback.show{display:flex}
+.profile-feedback.applying{
+  background:var(--md-s4);color:var(--md-on-surface-var);
+}
+.spinner{animation:spin .6s linear infinite;display:inline-block}
+
+/* ── App List (Exemptions) ── */
+.search-wrap{position:relative;margin-bottom:10px}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--md-outline)}
+.search-input{
+  width:100%;background:var(--md-s2);
+  border:1px solid var(--md-outline-var);border-radius:16px;
+  padding:11px 12px 11px 38px;
+  color:var(--md-on-surface);font-family:'Inter',sans-serif;font-size:14px;
+  outline:none;transition:border-color .2s;
+}
+.search-input:focus{border-color:var(--md-primary)}
+.exempt-toolbar{display:flex;gap:8px;margin-bottom:12px}
+.tonal-btn{
+  flex:1;background:var(--md-primary-container);
+  border:none;border-radius:12px;padding:10px 14px;
+  color:var(--md-on-primary-container);font-size:12px;font-weight:600;
+  cursor:pointer;transition:filter .15s;text-align:center;
+}
+.tonal-btn:hover{filter:brightness(1.1)}
+.tonal-btn.sm{flex:0 0 auto;padding:10px 16px;background:var(--md-s3);color:var(--md-on-surface-var);border:1px solid var(--md-outline-var)}
+.app-list{display:flex;flex-direction:column;gap:6px;max-height:420px;overflow-y:auto}
+.app-item{
+  background:var(--md-s2);border:1px solid var(--md-outline-var);
+  border-radius:16px;padding:10px 14px;
+  display:flex;align-items:center;gap:12px;
+  transition:border-color .2s;
+}
+.app-item.exempted{border-color:var(--md-primary);background:color-mix(in srgb,var(--md-primary-container) 40%,var(--md-s2))}
+.app-avatar{
+  width:40px;height:40px;border-radius:12px;
+  background:var(--md-s4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:700;color:var(--md-on-surface);
+  flex-shrink:0;overflow:hidden;font-family:'Inter',sans-serif;
+}
+.app-avatar img{width:100%;height:100%;object-fit:cover;border-radius:12px}
+.app-info{flex:1;min-width:0}
+.app-name{font-size:14px;font-weight:500;color:var(--md-on-surface);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app-pkg{font-size:11px;color:var(--md-outline);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;font-family:'JetBrains Mono',monospace}
+.toggle{
+  position:relative;width:42px;height:24px;flex-shrink:0;
+  background:var(--md-outline);border:none;border-radius:12px;
+  cursor:pointer;transition:background .2s;
+}
+.toggle.on{background:var(--md-primary)}
+.toggle::after{
+  content:'';position:absolute;
+  width:18px;height:18px;border-radius:50%;background:#fff;
+  top:3px;left:3px;transition:transform .2s;
+  box-shadow:0 1px 3px rgba(0,0,0,0.3);
+}
+.toggle.on::after{transform:translateX(18px)}
+.toggle:disabled{opacity:.5;cursor:wait}
+
+/* ── Logs ── */
+.log-toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.log-chip{
+  background:var(--md-s3);border:1px solid var(--md-outline-var);
+  border-radius:10px;padding:7px 14px;
+  font-size:12px;font-weight:500;color:var(--md-on-surface-var);
+  cursor:pointer;transition:all .15s;
+}
+.log-chip.active{background:var(--md-secondary-container,var(--md-s4));border-color:var(--md-primary);color:var(--md-primary)}
+.log-actions{display:flex;gap:8px;margin-bottom:10px}
+.log-action-btn{
+  flex:1;background:var(--md-s3);border:1px solid var(--md-outline-var);
+  border-radius:12px;padding:10px;font-size:12px;font-weight:500;
+  color:var(--md-on-surface-var);cursor:pointer;transition:all .15s;text-align:center;
+}
+.log-action-btn:hover{border-color:var(--md-primary);color:var(--md-primary)}
+.log-area{
+  background:#060A08;border:1px solid var(--md-outline-var);
+  border-radius:16px;padding:16px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.7;
+  color:var(--md-on-surface-var);height:360px;overflow-y:auto;
+  white-space:pre-wrap;word-break:break-all;
+}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo-line">
-    <div class="logo-dot"></div>
+<div class="top-bar">
+  <div class="top-bar-icon">🛡️</div>
+  <div class="top-bar-text">
     <h1>GMS Optimizer Reborn</h1>
+    <div class="sub mono" id="topSub">loading…</div>
   </div>
-  <div class="subtitle" id="subtitle">loading...</div>
-</header>
+</div>
 
 <div class="warn-banner" id="oosBanner">
-  ⚠ OxygenOS detected. GMS modification may be blocked by the system.
-  If optimization does not apply, try <a href="https://github.com/xizt159/Frosty" target="_blank">Frosty</a> instead.
+  ⚠ OxygenOS detected — GMS may be system-protected.
+  If optimization fails to apply, try <a href="https://github.com/xizt159/Frosty">Frosty</a>.
 </div>
 
-<div class="tabs">
-  <button class="tab active" onclick="showPage('home', this)">Home</button>
-  <button class="tab" onclick="showPage('profiles', this)">Profiles</button>
-  <button class="tab" onclick="showPage('exemptions', this)">Exemptions</button>
-  <button class="tab" onclick="showPage('logs', this)">Logs</button>
-</div>
+<div class="pages">
 
-<div class="page active" id="page-home">
+  <!-- ─── Dashboard ─── -->
+  <div class="page active" id="page-dash">
 
-  <div class="status-card">
-    <div class="status-label">GMS Optimization Status</div>
-    <div class="status-value loading" id="statusValue">Checking...</div>
-    <div class="status-meta" id="statusMeta"></div>
-    <button class="refresh-btn" id="refreshBtn" onclick="checkStatus()" title="Refresh">↻</button>
-  </div>
+    <div class="status-card" id="statusCard">
+      <div class="label-sm mono" style="letter-spacing:.1em">GMS OPTIMIZATION</div>
+      <div class="status-val" id="statusVal">Checking…</div>
+      <div class="status-profile mono" id="statusProfile"></div>
+      <button class="refresh-fab" id="refreshBtn" onclick="checkStatus()">↻</button>
+    </div>
 
-  <div class="section-title">Actions</div>
-  <div class="actions">
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-val loading mono" id="metricProcs">—</div>
+        <div class="metric-lbl">Processes</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val loading mono" id="metricSvc">—</div>
+        <div class="metric-lbl">Services</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val loading mono" id="metricRam">—</div>
+        <div class="metric-lbl">RAM (MB)</div>
+      </div>
+    </div>
 
-    <button class="action-btn" onclick="runAction('fix_messages')">
-      <div class="btn-title">Fix Delayed Notifications</div>
-      <div class="btn-desc">Surgically clears GMS notification cache and stale FCM database entries</div>
-      <span class="btn-icon">🧹</span>
+    <button class="kill-btn" onclick="killGms()">
+      <span class="kill-icon">⚡</span>
+      <span>
+        <div style="font-size:15px;font-weight:600">Kill GMS Now</div>
+        <div style="font-size:12px;opacity:.8;margin-top:2px">Force-stop all active processes immediately</div>
+      </span>
     </button>
 
-    <button class="action-btn" id="fmdBtn" onclick="toggleFmd()">
-      <div class="btn-title" id="fmdTitle">Find My Device</div>
-      <div class="btn-desc" id="fmdDesc">Checking status...</div>
-      <span class="btn-icon">📍</span>
-    </button>
+    <div class="section-head">Quick Actions</div>
+    <div class="action-list">
+      <button class="action-row" onclick="fixNotifications()">
+        <span class="action-icon">🧹</span>
+        <div class="action-row-text">
+          <div class="action-row-title">Fix Delayed Notifications</div>
+          <div class="action-row-desc">Surgical cache clear — targets only FCM/GCM databases</div>
+        </div>
+        <span class="action-chevron">›</span>
+      </button>
+      <button class="action-row" onclick="forceReapply()">
+        <span class="action-icon">🔄</span>
+        <div class="action-row-text">
+          <div class="action-row-title">Force Re-apply Optimization</div>
+          <div class="action-row-desc">Removes GMS from all Doze whitelists without rebooting</div>
+        </div>
+        <span class="action-chevron">›</span>
+      </button>
+      <button class="action-row" id="fmdRow" onclick="toggleFmd()">
+        <span class="action-icon">📍</span>
+        <div class="action-row-text">
+          <div class="action-row-title" id="fmdTitle">Find My Device</div>
+          <div class="action-row-desc" id="fmdDesc">Checking status…</div>
+        </div>
+        <span class="action-chevron">›</span>
+      </button>
+    </div>
 
-    <button class="action-btn warn" onclick="runAction('force_doze')">
-      <div class="btn-title">Force Re-apply Optimization</div>
-      <div class="btn-desc">Immediately removes GMS from Doze whitelist without rebooting</div>
-      <span class="btn-icon">⚡</span>
-    </button>
+    <div class="console" id="dashOut"></div>
 
   </div>
 
-  <div class="output" id="output"></div>
+  <!-- ─── Profiles ─── -->
+  <div class="page" id="page-profiles">
+    <div class="body-sm" style="color:var(--md-on-surface-var);margin-bottom:16px;line-height:1.6">
+      Choose how aggressively GMS is restricted. Applied immediately and re-applied on every boot.
+    </div>
 
-</div>
-
-<div class="page" id="page-profiles">
-
-  <div style="font-size:11px; color:var(--text-dim); margin-bottom:16px; line-height:1.6;">
-    Choose how aggressively GMS is restricted. The selected profile is re-applied on every boot.
-  </div>
-
-  <div class="profile-grid" id="profileGrid">
-
-    <div class="profile-card" id="profile-balanced" onclick="applyProfile('balanced')">
-      <div class="profile-header">
-        <span class="profile-icon">⚖️</span>
-        <span class="profile-name">Balanced</span>
-        <span class="profile-badge" id="badge-balanced">Active</span>
+    <div class="profile-stack">
+      <div class="profile-card selected" id="pc-balanced" onclick="applyProfile('balanced')">
+        <div class="profile-header">
+          <span class="profile-icon">⚖️</span>
+          <span class="profile-name">Balanced</span>
+          <span class="profile-chip">Active</span>
+        </div>
+        <div class="profile-desc">Removes GMS from Doze whitelist. Push notifications work normally via GSF. Best for daily use.</div>
+        <div class="profile-tags">
+          <span class="profile-tag">Doze Removed</span>
+          <span class="profile-tag">GSF Kept</span>
+          <span class="profile-tag">AppOps Default</span>
+        </div>
       </div>
-      <div class="profile-desc">Removes GMS from Doze whitelist. Push notifications work normally via GSF. Recommended for daily use.</div>
-      <div class="profile-features">
-        <span class="profile-tag">Doze Whitelist Removed</span>
-        <span class="profile-tag">GSF Whitelisted</span>
-        <span class="profile-tag">AppOps Default</span>
+
+      <div class="profile-card aggressive" id="pc-aggressive" onclick="applyProfile('aggressive')">
+        <div class="profile-header">
+          <span class="profile-icon">🔋</span>
+          <span class="profile-name">Aggressive</span>
+          <span class="profile-chip">Active</span>
+        </div>
+        <div class="profile-desc">Also restricts background activity, wake locks and AlarmManager. May cause notification delays.</div>
+        <div class="profile-tags">
+          <span class="profile-tag">Doze Removed</span>
+          <span class="profile-tag">BG Restricted</span>
+          <span class="profile-tag">WakeLock Limited</span>
+          <span class="profile-tag">Alarm Restricted</span>
+        </div>
+      </div>
+
+      <div class="profile-card gaming" id="pc-gaming" onclick="applyProfile('gaming')">
+        <div class="profile-header">
+          <span class="profile-icon">🎮</span>
+          <span class="profile-name">Gaming</span>
+          <span class="profile-chip">Active</span>
+        </div>
+        <div class="profile-desc">Re-enables full GMS access for smooth gaming. Switch back to Balanced after your session.</div>
+        <div class="profile-tags">
+          <span class="profile-tag">GMS Whitelisted</span>
+          <span class="profile-tag">AppOps Allowed</span>
+          <span class="profile-tag">No Restriction</span>
+        </div>
       </div>
     </div>
 
-    <div class="profile-card aggressive" id="profile-aggressive" onclick="applyProfile('aggressive')">
-      <div class="profile-header">
-        <span class="profile-icon">🔋</span>
-        <span class="profile-name">Aggressive</span>
-        <span class="profile-badge" id="badge-aggressive">Active</span>
-      </div>
-      <div class="profile-desc">Restricts GMS background activity, wake locks and AlarmManager in addition to Doze removal. May cause notification delays.</div>
-      <div class="profile-features">
-        <span class="profile-tag">Doze Whitelist Removed</span>
-        <span class="profile-tag">Background Restricted</span>
-        <span class="profile-tag">Wake Lock Limited</span>
-        <span class="profile-tag">AlarmManager Restricted</span>
-      </div>
+    <div class="profile-feedback applying" id="profileFeedback">
+      <span class="spinner">⏳</span>
+      <span id="profileFeedbackText">Optimizing policies…</span>
     </div>
-
-    <div class="profile-card gaming" id="profile-gaming" onclick="applyProfile('gaming')">
-      <div class="profile-header">
-        <span class="profile-icon">🎮</span>
-        <span class="profile-name">Gaming</span>
-        <span class="profile-badge" id="badge-gaming">Active</span>
-      </div>
-      <div class="profile-desc">Temporarily re-enables GMS unrestricted access. Use while gaming. Switch back to Balanced after your session.</div>
-      <div class="profile-features">
-        <span class="profile-tag">GMS Whitelisted</span>
-        <span class="profile-tag">AppOps Allowed</span>
-        <span class="profile-tag">No Doze Restriction</span>
-      </div>
-    </div>
-
   </div>
 
-  <div class="output" id="profile-output"></div>
-
-</div>
-
-<div class="page" id="page-exemptions">
-
-  <div style="font-size:11px; color:var(--text-dim); margin-bottom:12px; line-height:1.6;">
-    Exempted apps bypass Doze and background restrictions. Settings are saved and re-applied on every boot.
-  </div>
-
-  <div class="exempt-toolbar">
-    <button class="detect-btn" onclick="autoDetectMessaging()">⚡ Auto-detect Messaging</button>
-    <button class="detect-btn" onclick="loadApps()" style="max-width:80px;">↻ Reload</button>
-  </div>
-
-  <input type="text" class="search-input" id="appSearch" placeholder="Search by name or package..." oninput="filterApps()">
-
-  <div class="app-list" id="appList">
-    <div style="color:var(--text-dim); font-size:11px; font-family:'JetBrains Mono',monospace; padding:8px;">
-      Loading apps...
+  <!-- ─── Exemptions ─── -->
+  <div class="page" id="page-exempt">
+    <div class="body-sm" style="color:var(--md-on-surface-var);margin-bottom:12px;line-height:1.6">
+      Exempted apps bypass Doze restrictions. Saved to <span class="mono" style="font-size:11px">exemptions.conf</span> and re-applied on boot.
     </div>
+
+    <div class="exempt-toolbar">
+      <button class="tonal-btn" onclick="autoDetect()">⚡ Auto-detect Messaging</button>
+      <button class="tonal-btn sm" onclick="loadApps()">↻</button>
+    </div>
+
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="searchInput" type="text" placeholder="Search apps…" oninput="filterApps()">
+    </div>
+
+    <div class="app-list" id="appList">
+      <div style="color:var(--md-outline);font-size:12px;padding:8px;font-family:'JetBrains Mono',monospace">Loading apps…</div>
+    </div>
+  </div>
+
+  <!-- ─── Logs ─── -->
+  <div class="page" id="page-logs">
+    <div class="log-toolbar">
+      <button class="log-chip active" id="chip-doze" onclick="switchLog('doze',this)">Doze State</button>
+      <button class="log-chip" id="chip-install" onclick="switchLog('install',this)">Install Log</button>
+      <button class="log-chip" id="chip-appops" onclick="switchLog('appops',this)">AppOps</button>
+    </div>
+
+    <div class="log-actions">
+      <button class="log-action-btn" onclick="exportLog()">⬇ Export Log</button>
+      <button class="log-action-btn" onclick="bugReport()">🐛 Bug Report</button>
+    </div>
+
+    <div class="log-area mono" id="logArea">Select a log source above.</div>
   </div>
 
 </div>
 
-<div class="page" id="page-logs">
-
-  <div class="log-toolbar">
-    <button class="log-btn active" id="logbtn-doze" onclick="loadLog('doze', this)">Doze State</button>
-    <button class="log-btn" id="logbtn-install" onclick="loadLog('install', this)">Install Log</button>
-    <button class="log-btn" id="logbtn-appops" onclick="loadLog('appops', this)">AppOps</button>
-  </div>
-
-  <div class="log-area" id="logArea">Select a log source above.</div>
-
-</div>
-
-<footer>
-  fork of <a href="https://github.com/gloeyisk/universal-gms-doze">gloeyisk/universal-gms-doze</a>
-  · <a href="https://github.com/ferrdishx/gms-optimizer-reborn">source</a>
-</footer>
+<!-- ─── Bottom Nav ─── -->
+<nav class="bottom-nav">
+  <button class="nav-item active" id="nav-dash" onclick="showPage('dash',this)">
+    <div class="nav-indicator"></div>
+    <span class="nav-icon">📊</span>
+    <span class="nav-label">Dashboard</span>
+  </button>
+  <button class="nav-item" id="nav-profiles" onclick="showPage('profiles',this)">
+    <div class="nav-indicator"></div>
+    <span class="nav-icon">⚙️</span>
+    <span class="nav-label">Profiles</span>
+  </button>
+  <button class="nav-item" id="nav-exempt" onclick="showPage('exempt',this)">
+    <div class="nav-indicator"></div>
+    <span class="nav-icon">🛡️</span>
+    <span class="nav-label">Exemptions</span>
+  </button>
+  <button class="nav-item" id="nav-logs" onclick="showPage('logs',this)">
+    <div class="nav-indicator"></div>
+    <span class="nav-icon">📋</span>
+    <span class="nav-label">Logs</span>
+  </button>
+</nav>
 
 <script>
 const MOD = '/data/adb/modules/gms-optimizer-reborn';
-const CONFIG = MOD + '/exemptions.conf';
-const PROFILE_FILE = MOD + '/profile.conf';
+const CONF = MOD + '/exemptions.conf';
+const PROF_FILE = MOD + '/profile.conf';
 const GMS = 'com.google.android.gms';
-const FMD_COMP = GMS + '/com.google.android.gms.mdm.receivers.MdmDeviceAdminReceiver';
+const GSF = 'com.google.android.gsf';
+const FMD = GMS + '/com.google.android.gms.mdm.receivers.MdmDeviceAdminReceiver';
 
 const APP_LABELS = {
-  'com.whatsapp': 'WhatsApp',
-  'com.whatsapp.w4b': 'WhatsApp Business',
-  'org.telegram.messenger': 'Telegram',
-  'org.telegram.messenger.web': 'Telegram X',
-  'com.discord': 'Discord',
-  'com.instagram.android': 'Instagram',
-  'com.facebook.orca': 'Messenger',
-  'com.facebook.katana': 'Facebook',
-  'com.twitter.android': 'X (Twitter)',
-  'com.snapchat.android': 'Snapchat',
-  'com.viber.voip': 'Viber',
-  'com.skype.raider': 'Skype',
-  'com.microsoft.teams': 'Teams',
-  'com.slack': 'Slack',
-  'com.google.android.talk': 'Google Chat',
-  'com.google.android.apps.messaging': 'Messages',
-  'com.tencent.mm': 'WeChat',
-  'jp.naver.line.android': 'LINE',
-  'com.kakao.talk': 'KakaoTalk',
-  'org.thoughtcrime.securesms': 'Signal',
-  'com.microsoft.outlook': 'Outlook',
-  'com.google.android.gm': 'Gmail',
-  'com.netflix.mediaclient': 'Netflix',
-  'com.spotify.music': 'Spotify',
-  'com.google.android.youtube': 'YouTube',
-  'com.tiktok': 'TikTok',
-  'com.zhiliaoapp.musically': 'TikTok',
-  'com.linkedin.android': 'LinkedIn',
-  'com.reddit.frontpage': 'Reddit',
-  'com.uber': 'Uber',
-  'com.ifood.android': 'iFood',
-  'br.com.bb.android': 'Banco do Brasil',
-  'com.nu.production': 'Nubank',
-  'com.itau': 'Itaú',
-  'com.bradesco': 'Bradesco',
-  'com.santander.app': 'Santander',
-  'br.com.intermedium': 'Inter',
-  'com.mercadopago.wallet': 'Mercado Pago',
-  'com.picpay': 'PicPay',
+  'com.whatsapp':'WhatsApp','com.whatsapp.w4b':'WhatsApp Business',
+  'org.telegram.messenger':'Telegram','org.telegram.messenger.web':'Telegram X',
+  'com.discord':'Discord','com.instagram.android':'Instagram',
+  'com.facebook.orca':'Messenger','com.facebook.katana':'Facebook',
+  'com.twitter.android':'X (Twitter)','com.snapchat.android':'Snapchat',
+  'com.viber.voip':'Viber','com.skype.raider':'Skype',
+  'com.microsoft.teams':'Teams','com.slack':'Slack',
+  'com.google.android.talk':'Google Chat',
+  'com.google.android.apps.messaging':'Messages',
+  'com.tencent.mm':'WeChat','jp.naver.line.android':'LINE',
+  'com.kakao.talk':'KakaoTalk','org.thoughtcrime.securesms':'Signal',
+  'com.microsoft.outlook':'Outlook','com.google.android.gm':'Gmail',
+  'com.netflix.mediaclient':'Netflix','com.spotify.music':'Spotify',
+  'com.google.android.youtube':'YouTube',
+  'com.zhiliaoapp.musically':'TikTok','com.tiktok':'TikTok',
+  'com.linkedin.android':'LinkedIn','com.reddit.frontpage':'Reddit',
+  'com.uber':'Uber','com.ifood.android':'iFood',
+  'br.com.bb.android':'Banco do Brasil','com.nu.production':'Nubank',
+  'com.itau':'Itaú','com.bradesco':'Bradesco',
+  'com.santander.app':'Santander','br.com.intermedium':'Inter',
+  'com.mercadopago.wallet':'Mercado Pago','com.picpay':'PicPay',
+  'com.google.android.chrome':'Chrome','com.android.chrome':'Chrome',
 };
 
 const MESSAGING_PKGS = new Set([
-  'com.whatsapp', 'com.whatsapp.w4b',
-  'org.telegram.messenger', 'org.telegram.messenger.web',
-  'com.discord', 'com.instagram.android', 'com.facebook.orca',
-  'com.viber.voip', 'com.skype.raider', 'com.microsoft.teams',
-  'com.slack', 'com.google.android.talk', 'com.google.android.apps.messaging',
-  'com.tencent.mm', 'jp.naver.line.android', 'com.kakao.talk',
-  'org.thoughtcrime.securesms',
+  'com.whatsapp','com.whatsapp.w4b','org.telegram.messenger',
+  'org.telegram.messenger.web','com.discord','com.instagram.android',
+  'com.facebook.orca','com.viber.voip','com.skype.raider',
+  'com.microsoft.teams','com.slack','com.google.android.talk',
+  'com.google.android.apps.messaging','com.tencent.mm',
+  'jp.naver.line.android','com.kakao.talk','org.thoughtcrime.securesms',
 ]);
 
-const AVATAR_COLORS = [
-  '#00ff9d','#4fa3ff','#ff6b35','#c084fc','#f59e0b',
-  '#34d399','#f87171','#60a5fa','#a78bfa','#fb923c',
-];
+const SKIP_SEGS = new Set(['com','org','net','io','dev','br','android','google','app','apps','application','mobile','phone','inc','ltd','co','me']);
+const AVATAR_COLORS = ['#2E7D52','#1565C0','#6A1B9A','#C62828','#E65100','#00838F','#37474F','#4E342E'];
+const iconCache = new Map();
+let allApps = [];
+let activeLog = 'doze';
+let currentProfile = 'balanced';
+let monitorInterval = null;
+
+function uid() {
+  return (crypto && crypto.randomUUID) ? crypto.randomUUID().replace(/-/g,'') : Math.random().toString(36).slice(2)+Date.now().toString(36);
+}
+
+function exec(cmd) {
+  return new Promise((res,rej) => {
+    const id = '_k_' + uid();
+    window[id] = (errno,stdout,stderr) => { delete window[id]; res({errno,stdout:stdout||'',stderr:stderr||''}); };
+    try { ksu.exec(cmd,'{}',id); } catch(e) { delete window[id]; rej(e); }
+  });
+}
+
+function toast(msg) { try { ksu.toast(msg); } catch(e) { console.log(msg); } }
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function parseLabel(pkg) {
+  if (APP_LABELS[pkg]) return APP_LABELS[pkg];
+  const segs = pkg.split('.');
+  const meaningful = segs.filter(s => s.length > 2 && !SKIP_SEGS.has(s.toLowerCase()));
+  const raw = meaningful[meaningful.length - 1] || segs[segs.length - 1] || pkg;
+  return raw
+    .replace(/([A-Z])/g,' $1')
+    .replace(/[_.-]+/g,' ')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(' ');
+}
 
 function avatarColor(pkg) {
   let h = 0;
@@ -629,147 +664,198 @@ function avatarColor(pkg) {
   return AVATAR_COLORS[h % AVATAR_COLORS.length];
 }
 
-function getLabel(pkg) {
-  return APP_LABELS[pkg] || pkg.split('.').filter(p => p.length > 2).pop() || pkg;
+async function fetchIcon(pkg) {
+  if (iconCache.has(pkg)) return iconCache.get(pkg);
+  iconCache.set(pkg, null);
+  try {
+    const {stdout} = await exec(
+      'APK=$(pm path "' + pkg + '" 2>/dev/null | cut -d: -f2 | tr -d " " | head -1);' +
+      'if [ -n "$APK" ];then ' +
+        'ICON=$(unzip -l "$APK" 2>/dev/null | grep -E "\\.png$" | grep -iE "ic_launcher[^_]" | grep -iv "round|foreground|background|night" | awk \'{print $NF}\' | grep -iE "xxhdpi|xhdpi|hdpi" | head -1);' +
+        '[ -z "$ICON" ] && ICON=$(unzip -l "$APK" 2>/dev/null | grep -E "ic_launcher\\.png" | awk \'{print $NF}\' | head -1);' +
+        '[ -n "$ICON" ] && unzip -p "$APK" "$ICON" 2>/dev/null | base64 -w 0;' +
+      'fi'
+    );
+    const b64 = stdout.trim();
+    const icon = b64 ? 'data:image/png;base64,' + b64 : null;
+    iconCache.set(pkg, icon);
+    return icon;
+  } catch(e) { return null; }
 }
 
-function escapeHtml(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function exec(cmd) {
-  return new Promise((resolve, reject) => {
-    const id = (typeof crypto !== 'undefined' && crypto.randomUUID)
-      ? crypto.randomUUID().replace(/-/g, '')
-      : Math.random().toString(36).slice(2) + Date.now().toString(36);
-    const cb = '_ksu_' + id;
-    window[cb] = (errno, stdout, stderr) => { delete window[cb]; resolve({ errno, stdout, stderr }); };
-    try { ksu.exec(cmd, '{}', cb); }
-    catch(e) { delete window[cb]; reject(e); }
+const iconObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const el = entry.target;
+    const pkg = el.dataset.pkg;
+    if (pkg) updateIcon(pkg, el);
+    iconObserver.unobserve(el);
   });
+}, {threshold: 0.1});
+
+async function updateIcon(pkg, el) {
+  const icon = await fetchIcon(pkg);
+  if (icon) {
+    el.innerHTML = '<img src="' + icon + '" alt="">';
+  }
 }
 
-function toast(msg) { try { ksu.toast(msg); } catch(e) { console.log(msg); } }
-
-window.showPage = function(id, tab) {
+window.showPage = function(id, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
-  tab.classList.add('active');
-  if (id === 'exemptions' && allApps.length === 0) loadApps();
-  if (id === 'logs') loadLog('doze', document.getElementById('logbtn-doze'));
+  (btn || document.getElementById('nav-' + id)).classList.add('active');
+  if (id === 'exempt' && allApps.length === 0) loadApps();
+  if (id === 'logs') switchLog(activeLog, document.getElementById('chip-' + activeLog));
   if (id === 'profiles') refreshProfileUI();
+  if (id === 'dash') startMonitor(); else stopMonitor();
 };
 
 window.checkStatus = async function() {
+  const card = document.getElementById('statusCard');
+  const val = document.getElementById('statusVal');
+  const profile = document.getElementById('statusProfile');
   const btn = document.getElementById('refreshBtn');
-  const val = document.getElementById('statusValue');
-  const meta = document.getElementById('statusMeta');
   btn.classList.add('spinning');
-  val.className = 'status-value loading';
-  val.textContent = 'Checking...';
-  meta.textContent = '';
+  val.textContent = 'Checking…';
   try {
-    const [wl, profile] = await Promise.all([
-      exec('dumpsys deviceidle whitelist 2>/dev/null | grep ' + GMS + ' | head -1'),
-      exec('cat "' + PROFILE_FILE + '" 2>/dev/null'),
+    const [{stdout: wl}, {stdout: pf}] = await Promise.all([
+      exec('dumpsys deviceidle whitelist 2>/dev/null | grep -c "' + GMS + '"'),
+      exec('cat "' + PROF_FILE + '" 2>/dev/null'),
     ]);
-    const optimized = wl.stdout.trim() === '';
-    val.className = 'status-value ' + (optimized ? 'optimized' : 'not-optimized');
-    val.textContent = optimized ? '✓ Optimized' : '✗ Not Optimized';
-    const pName = (profile.stdout.trim() || 'balanced');
-    meta.textContent = 'profile: ' + pName;
-  } catch(e) {
-    val.className = 'status-value not-optimized';
-    val.textContent = 'Error';
-  }
+    const inList = parseInt(wl.trim()) > 0;
+    card.classList.toggle('bad', inList);
+    val.textContent = inList ? '✗ Not Optimized' : '✓ Optimized';
+    const p = pf.trim() || 'balanced';
+    currentProfile = p;
+    profile.textContent = 'Profile: ' + p.charAt(0).toUpperCase() + p.slice(1);
+  } catch(e) { val.textContent = 'Error'; }
   btn.classList.remove('spinning');
 };
 
-window.runAction = async function(action) {
-  const output = document.getElementById('output');
-  output.classList.add('visible');
-  output.innerHTML = '<span class="info">Running...</span>';
-  const commands = {
-    fix_messages: [
-      'am force-stop ' + GMS,
-      'pm trim-caches 999G',
-      'find /data/data/' + GMS + '/cache -type f -delete 2>/dev/null',
-      'find /data/data/' + GMS + '/databases -name "gcm*" -delete 2>/dev/null',
-      'find /data/data/' + GMS + '/databases -name "fcm*" -delete 2>/dev/null',
-      'echo "Notification cache cleared."',
-    ].join(' && '),
-    force_doze: [
-      'dumpsys deviceidle whitelist -' + GMS + ' 2>&1',
-      'cmd deviceidle sys-whitelist -' + GMS + ' 2>/dev/null',
-      'cmd deviceidle except-idle-whitelist -' + GMS + ' 2>/dev/null',
-      'echo "Optimization re-applied."',
-    ].join('; '),
-  };
+async function refreshMetrics() {
   try {
-    const { errno, stdout, stderr } = await exec(commands[action]);
-    const out = (stdout || '') + (stderr || '');
-    output.innerHTML = '<span class="' + (errno === 0 ? 'ok' : 'err') + '">' + escapeHtml(out.trim() || 'Done.') + '</span>';
-    if (action === 'force_doze') setTimeout(() => window.checkStatus(), 800);
-  } catch(e) {
-    output.innerHTML = '<span class="err">Error: ' + escapeHtml(e) + '</span>';
-  }
+    const [{stdout: procs}, {stdout: svc}, {stdout: ram}] = await Promise.all([
+      exec('ps -A 2>/dev/null | grep -c "[c]om.google.android.gms" || echo 0'),
+      exec('dumpsys activity services ' + GMS + ' 2>/dev/null | grep -c "ServiceRecord{" || echo 0'),
+      exec('PID=$(pidof ' + GMS + ' 2>/dev/null | awk \'{print $1}\'); [ -n "$PID" ] && awk \'/VmRSS/{print int($2/1024)}\' /proc/$PID/status 2>/dev/null || echo 0'),
+    ]);
+    const pEl = document.getElementById('metricProcs');
+    const sEl = document.getElementById('metricSvc');
+    const rEl = document.getElementById('metricRam');
+    pEl.textContent = procs.trim() || '0'; pEl.className = 'metric-val mono';
+    sEl.textContent = svc.trim() || '0'; sEl.className = 'metric-val mono';
+    rEl.textContent = ram.trim() || '0'; rEl.className = 'metric-val mono';
+  } catch(e) {}
+}
+
+function startMonitor() {
+  refreshMetrics();
+  if (!monitorInterval) monitorInterval = setInterval(refreshMetrics, 5000);
+}
+
+function stopMonitor() {
+  if (monitorInterval) { clearInterval(monitorInterval); monitorInterval = null; }
+}
+
+window.killGms = async function() {
+  const out = document.getElementById('dashOut');
+  out.className = 'console show';
+  out.innerHTML = '<span class="dim">Killing GMS…</span>';
+  try {
+    const {errno,stdout,stderr} = await exec('am force-stop ' + GMS + ' 2>&1 && echo "GMS stopped."');
+    out.innerHTML = errno === 0 ? '<span class="ok">' + esc((stdout||'').trim()) + '</span>' : '<span class="err">' + esc((stdout+stderr).trim()) + '</span>';
+    setTimeout(refreshMetrics, 800);
+  } catch(e) { out.innerHTML = '<span class="err">Error</span>'; }
 };
 
-window.checkFmdStatus = async function() {
-  const title = document.getElementById('fmdTitle');
-  const desc  = document.getElementById('fmdDesc');
-  const btn   = document.getElementById('fmdBtn');
+window.fixNotifications = async function() {
+  const out = document.getElementById('dashOut');
+  out.className = 'console show';
+  out.innerHTML = '<span class="dim">Clearing notification cache…</span>';
+  const cmd = [
+    'am force-stop ' + GMS,
+    'pm trim-caches 999G',
+    'find /data/data/' + GMS + '/cache -type f -delete 2>/dev/null',
+    'find /data/data/' + GMS + '/databases -name "gcm*" -delete 2>/dev/null',
+    'find /data/data/' + GMS + '/databases -name "fcm*" -delete 2>/dev/null',
+    'echo "Done."',
+  ].join(' && ');
   try {
-    const { stdout } = await exec('pm query-receivers --components -a android.app.action.DEVICE_ADMIN_ENABLED 2>/dev/null | grep MdmDeviceAdminReceiver');
-    const enabled = stdout.trim() !== '';
-    title.textContent = enabled ? 'Disable Find My Device' : 'Enable Find My Device';
-    desc.textContent  = enabled
-      ? 'MdmDeviceAdminReceiver is ENABLED — tap to disable'
-      : 'MdmDeviceAdminReceiver is DISABLED — tap to enable';
-    btn.dataset.state = enabled ? 'enabled' : 'disabled';
-  } catch(e) { desc.textContent = 'Could not check status'; }
+    const {errno,stdout} = await exec(cmd);
+    out.innerHTML = '<span class="' + (errno===0?'ok':'err') + '">' + esc(stdout.trim()) + '</span>';
+  } catch(e) { out.innerHTML = '<span class="err">Error</span>'; }
+};
+
+window.forceReapply = async function() {
+  const out = document.getElementById('dashOut');
+  out.className = 'console show';
+  out.innerHTML = '<span class="dim">Re-applying optimization…</span>';
+  const cmd = [
+    'dumpsys deviceidle whitelist -' + GMS + ' 2>/dev/null',
+    'cmd deviceidle whitelist -' + GMS + ' 2>/dev/null',
+    'cmd deviceidle sys-whitelist -' + GMS + ' 2>/dev/null',
+    'cmd deviceidle except-idle-whitelist -' + GMS + ' 2>/dev/null',
+    'dumpsys deviceidle whitelist +' + GSF + ' 2>/dev/null',
+    'echo "Optimization applied."',
+  ].join('; ');
+  try {
+    const {stdout} = await exec(cmd);
+    out.innerHTML = '<span class="ok">' + esc(stdout.trim()) + '</span>';
+    setTimeout(checkStatus, 600);
+  } catch(e) { out.innerHTML = '<span class="err">Error</span>'; }
+};
+
+window.checkFmd = async function() {
+  try {
+    const {stdout} = await exec('pm query-receivers --components -a android.app.action.DEVICE_ADMIN_ENABLED 2>/dev/null | grep -c MdmDeviceAdminReceiver || echo 0');
+    const on = parseInt(stdout.trim()) > 0;
+    document.getElementById('fmdTitle').textContent = on ? 'Disable Find My Device' : 'Enable Find My Device';
+    document.getElementById('fmdDesc').textContent = on ? 'MdmDeviceAdminReceiver is active — tap to disable' : 'MdmDeviceAdminReceiver is disabled — tap to enable';
+    document.getElementById('fmdRow').dataset.fmdState = on ? '1' : '0';
+  } catch(e) {}
 };
 
 window.toggleFmd = async function() {
-  const btn    = document.getElementById('fmdBtn');
-  const output = document.getElementById('output');
-  const state  = btn.dataset.state;
-  output.classList.add('visible');
-  output.innerHTML = '<span class="info">Running...</span>';
-  const cmd = state === 'disabled'
-    ? 'pm enable ' + FMD_COMP + ' 2>&1 && echo "Find My Device enabled."'
-    : 'pm disable ' + FMD_COMP + ' 2>&1 && echo "Find My Device disabled."';
+  const row = document.getElementById('fmdRow');
+  const on = row.dataset.fmdState === '1';
+  const out = document.getElementById('dashOut');
+  out.className = 'console show';
+  out.innerHTML = '<span class="dim">Updating…</span>';
+  const cmd = on ? 'pm disable ' + FMD + ' 2>&1' : 'pm enable ' + FMD + ' 2>&1';
   try {
-    const { errno, stdout, stderr } = await exec(cmd);
-    output.innerHTML = '<span class="' + (errno === 0 ? 'ok' : 'err') + '">' + escapeHtml((stdout||'')+(stderr||'')) + '</span>';
-    setTimeout(() => window.checkFmdStatus(), 500);
-  } catch(e) { output.innerHTML = '<span class="err">Error: ' + escapeHtml(e) + '</span>'; }
+    const {errno,stdout} = await exec(cmd + ' && echo "Done."');
+    out.innerHTML = '<span class="' + (errno===0?'ok':'err') + '">' + esc(stdout.trim()) + '</span>';
+    setTimeout(checkFmd, 400);
+  } catch(e) { out.innerHTML = '<span class="err">Error</span>'; }
 };
 
 const PROFILE_CMDS = {
   balanced: [
-    'dumpsys deviceidle whitelist -' + GMS,
+    'dumpsys deviceidle whitelist -' + GMS + ' 2>/dev/null',
+    'cmd deviceidle whitelist -' + GMS + ' 2>/dev/null',
     'cmd deviceidle sys-whitelist -' + GMS + ' 2>/dev/null',
     'cmd deviceidle except-idle-whitelist -' + GMS + ' 2>/dev/null',
     'cmd appops set ' + GMS + ' RUN_IN_BACKGROUND default 2>/dev/null',
     'cmd appops set ' + GMS + ' RUN_ANY_IN_BACKGROUND default 2>/dev/null',
     'cmd appops set ' + GMS + ' SCHEDULE_EXACT_ALARM default 2>/dev/null',
     'cmd appops set ' + GMS + ' WAKE_LOCK default 2>/dev/null',
-    'dumpsys deviceidle whitelist +com.google.android.gsf 2>/dev/null',
+    'dumpsys deviceidle whitelist +' + GSF + ' 2>/dev/null',
   ],
   aggressive: [
-    'dumpsys deviceidle whitelist -' + GMS,
+    'dumpsys deviceidle whitelist -' + GMS + ' 2>/dev/null',
+    'cmd deviceidle whitelist -' + GMS + ' 2>/dev/null',
     'cmd deviceidle sys-whitelist -' + GMS + ' 2>/dev/null',
     'cmd deviceidle except-idle-whitelist -' + GMS + ' 2>/dev/null',
     'cmd appops set ' + GMS + ' RUN_IN_BACKGROUND deny 2>/dev/null',
     'cmd appops set ' + GMS + ' RUN_ANY_IN_BACKGROUND deny 2>/dev/null',
     'cmd appops set ' + GMS + ' SCHEDULE_EXACT_ALARM deny 2>/dev/null',
     'cmd appops set ' + GMS + ' WAKE_LOCK restrict 2>/dev/null',
-    'dumpsys deviceidle whitelist +com.google.android.gsf 2>/dev/null',
+    'dumpsys deviceidle whitelist +' + GSF + ' 2>/dev/null',
   ],
   gaming: [
-    'dumpsys deviceidle whitelist +' + GMS,
+    'dumpsys deviceidle whitelist +' + GMS + ' 2>/dev/null',
+    'cmd deviceidle whitelist +' + GMS + ' 2>/dev/null',
     'cmd deviceidle sys-whitelist +' + GMS + ' 2>/dev/null',
     'cmd appops set ' + GMS + ' RUN_IN_BACKGROUND allow 2>/dev/null',
     'cmd appops set ' + GMS + ' RUN_ANY_IN_BACKGROUND allow 2>/dev/null',
@@ -778,201 +864,200 @@ const PROFILE_CMDS = {
   ],
 };
 
-let currentProfile = 'balanced';
-
 async function refreshProfileUI() {
   try {
-    const { stdout } = await exec('cat "' + PROFILE_FILE + '" 2>/dev/null');
+    const {stdout} = await exec('cat "' + PROF_FILE + '" 2>/dev/null');
     currentProfile = stdout.trim() || 'balanced';
   } catch(e) { currentProfile = 'balanced'; }
   ['balanced','aggressive','gaming'].forEach(p => {
-    const card = document.getElementById('profile-' + p);
-    const badge = document.getElementById('badge-' + p);
-    card.classList.toggle('active-profile', p === currentProfile);
-    badge.style.display = p === currentProfile ? '' : 'none';
+    document.getElementById('pc-' + p).classList.toggle('selected', p === currentProfile);
   });
 }
 
 window.applyProfile = async function(profile) {
-  const output = document.getElementById('profile-output');
-  output.classList.add('visible');
-  output.innerHTML = '<span class="info">Applying ' + profile + ' profile...</span>';
+  const fb = document.getElementById('profileFeedback');
+  const fbTxt = document.getElementById('profileFeedbackText');
+  fb.className = 'profile-feedback applying show';
+  fbTxt.textContent = 'Optimizing policies…';
   try {
-    const cmd = PROFILE_CMDS[profile].join('; ');
-    const { errno, stdout, stderr } = await exec(cmd);
-    await exec("printf '" + profile + "' > \"" + PROFILE_FILE + '"');
+    await exec(PROFILE_CMDS[profile].join('; '));
+    await exec("printf '%s' '" + profile + "' > \"" + PROF_FILE + '"');
     currentProfile = profile;
     refreshProfileUI();
-    const out = (stdout || '') + (stderr || '');
-    output.innerHTML = '<span class="ok">Profile "' + profile + '" applied.\n' + escapeHtml(out.trim()) + '</span>';
-    setTimeout(() => window.checkStatus(), 600);
+    fb.className = 'profile-feedback show';
+    fbTxt.textContent = '✓ ' + profile.charAt(0).toUpperCase() + profile.slice(1) + ' profile applied successfully.';
+    setTimeout(checkStatus, 600);
+    setTimeout(() => { fb.className = 'profile-feedback'; }, 3000);
   } catch(e) {
-    output.innerHTML = '<span class="err">Error: ' + escapeHtml(e) + '</span>';
+    fb.className = 'profile-feedback applying show';
+    fbTxt.textContent = '✗ Failed to apply profile.';
   }
 };
 
-let allApps = [];
-
 async function loadConfig() {
-  const { errno, stdout } = await exec('cat "' + CONFIG + '" 2>/dev/null');
-  if (errno !== 0 || !stdout.trim()) return new Set();
+  const {stdout} = await exec('cat "' + CONF + '" 2>/dev/null');
   return new Set(stdout.trim().split('\n').filter(Boolean));
 }
 
 async function saveConfig(pkgs) {
-  const content = [...pkgs].join('\n');
-  await exec("printf '%s' '" + content.replace(/'/g,"'\\''") + "' > \"" + CONFIG + '" 2>/dev/null');
+  const data = [...pkgs].join('\n').replace(/'/g,"'\\''");
+  await exec("printf '%s' '" + data + "' > \"" + CONF + '"');
 }
 
-async function getActiveExemptions() {
-  const { stdout } = await exec('dumpsys deviceidle whitelist 2>/dev/null | grep "^user," | cut -d, -f2');
-  return new Set(stdout.trim().split('\n').filter(Boolean));
-}
-
-async function loadApps() {
+window.loadApps = async function() {
   const list = document.getElementById('appList');
-  list.innerHTML = '<div style="color:var(--text-dim);font-size:11px;font-family:\'JetBrains Mono\',monospace;padding:8px;">Loading apps...</div>';
+  list.innerHTML = '<div style="color:var(--md-outline);font-size:12px;padding:8px;font-family:\'JetBrains Mono\',monospace">Loading…</div>';
   try {
-    const [pkgsRes, saved, active] = await Promise.all([
-      exec('pm list packages -3 2>/dev/null'),
-      loadConfig(),
-      getActiveExemptions(),
-    ]);
-    const pkgs = pkgsRes.stdout.trim().split('\n')
-      .map(l => l.replace('package:','').trim())
-      .filter(Boolean).sort();
-    allApps = pkgs.map(pkg => ({ pkg, exempted: saved.has(pkg) || active.has(pkg) }));
-    allApps.sort((a,b) => (b.exempted ? 1 : 0) - (a.exempted ? 1 : 0));
+    const [{stdout: raw}, saved] = await Promise.all([exec('pm list packages -3 2>/dev/null'), loadConfig()]);
+    const pkgs = raw.trim().split('\n').map(l => l.replace('package:','').trim()).filter(Boolean).sort();
+    allApps = pkgs.map(pkg => ({pkg, exempted: saved.has(pkg)}));
+    allApps.sort((a,b) => (b.exempted?1:0)-(a.exempted?1:0));
     renderApps(allApps);
   } catch(e) {
-    list.innerHTML = '<div style="color:var(--not-optimized);font-size:11px;padding:8px;">Error: ' + escapeHtml(e) + '</div>';
+    list.innerHTML = '<div style="color:var(--md-error);font-size:12px;padding:8px">' + esc(String(e)) + '</div>';
   }
-}
+};
 
 function renderApps(apps) {
   const list = document.getElementById('appList');
-  if (!apps.length) {
-    list.innerHTML = '<div style="color:var(--text-dim);font-size:11px;padding:8px;">No apps found</div>';
-    return;
-  }
-  list.innerHTML = apps.map(({ pkg, exempted }) => {
-    const label = getLabel(pkg);
+  if (!apps.length) { list.innerHTML = '<div style="color:var(--md-outline);font-size:12px;padding:8px">No apps found</div>'; return; }
+  list.innerHTML = apps.map(({pkg, exempted}) => {
+    const label = parseLabel(pkg);
     const initial = label[0].toUpperCase();
     const color = avatarColor(pkg);
-    const safePkg = pkg.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    return '<div class="app-item ' + (exempted ? 'exempted' : '') + '" id="app-' + CSS.escape(pkg) + '">' +
-      '<div class="app-avatar" style="background:' + color + '">' + initial + '</div>' +
-      '<div class="app-item-info">' +
-        '<div class="app-item-label">' + escapeHtml(label) + '</div>' +
-        '<div class="app-item-pkg">' + escapeHtml(pkg) + '</div>' +
+    const sp = pkg.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return '<div class="app-item' + (exempted?' exempted':'') + '" id="ai-' + CSS.escape(pkg) + '">' +
+      '<div class="app-avatar" data-pkg="' + esc(pkg) + '" style="background:' + color + ';color:#fff">' + initial + '</div>' +
+      '<div class="app-info">' +
+        '<div class="app-name">' + esc(label) + '</div>' +
+        '<div class="app-pkg">' + esc(pkg) + '</div>' +
       '</div>' +
-      '<button class="app-toggle ' + (exempted ? 'on' : '') + '" onclick="toggleApp(\'' + safePkg + '\', this)"></button>' +
+      '<button class="toggle' + (exempted?' on':'') + '" onclick="toggleApp(\'' + sp + '\',this)"></button>' +
     '</div>';
   }).join('');
+  list.querySelectorAll('.app-avatar[data-pkg]').forEach(el => iconObserver.observe(el));
 }
 
 window.filterApps = function() {
-  const q = document.getElementById('appSearch').value.toLowerCase();
-  if (!q) { renderApps(allApps); return; }
-  renderApps(allApps.filter(a =>
-    a.pkg.toLowerCase().includes(q) || getLabel(a.pkg).toLowerCase().includes(q)
-  ));
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  renderApps(q ? allApps.filter(a => a.pkg.toLowerCase().includes(q) || parseLabel(a.pkg).toLowerCase().includes(q)) : allApps);
 };
 
-window.autoDetectMessaging = async function() {
-  if (allApps.length === 0) await loadApps();
-  let added = 0;
+window.autoDetect = async function() {
+  if (!allApps.length) await loadApps();
   const toAdd = allApps.filter(a => MESSAGING_PKGS.has(a.pkg) && !a.exempted);
-  if (toAdd.length === 0) { toast('No new messaging apps found to exempt'); return; }
+  if (!toAdd.length) { toast('No new messaging apps to exempt'); return; }
   for (const app of toAdd) {
-    try {
-      await exec('dumpsys deviceidle whitelist +' + app.pkg + ' 2>/dev/null');
-      await exec('cmd appops set ' + app.pkg + ' RUN_IN_BACKGROUND allow 2>/dev/null');
-      await exec('cmd appops set ' + app.pkg + ' RUN_ANY_IN_BACKGROUND allow 2>/dev/null');
-      app.exempted = true;
-      added++;
-    } catch(e) {}
+    await exec('dumpsys deviceidle whitelist +' + app.pkg + ' 2>/dev/null; cmd appops set ' + app.pkg + ' RUN_IN_BACKGROUND allow 2>/dev/null; cmd appops set ' + app.pkg + ' RUN_ANY_IN_BACKGROUND allow 2>/dev/null').catch(()=>{});
+    app.exempted = true;
   }
-  const exempted = new Set(allApps.filter(a => a.exempted).map(a => a.pkg));
-  await saveConfig(exempted);
+  await saveConfig(new Set(allApps.filter(a=>a.exempted).map(a=>a.pkg)));
   renderApps(allApps);
-  toast(added + ' messaging app(s) auto-exempted');
+  toast(toAdd.length + ' app(s) exempted');
 };
 
 window.toggleApp = async function(pkg, btn) {
-  const item = document.getElementById('app-' + CSS.escape(pkg));
-  const app  = allApps.find(a => a.pkg === pkg);
+  const item = document.getElementById('ai-' + CSS.escape(pkg));
+  const app = allApps.find(a=>a.pkg===pkg);
   if (!app) return;
   btn.disabled = true;
-  const adding = !app.exempted;
-  try {
-    if (adding) {
-      await exec('dumpsys deviceidle whitelist +' + pkg + ' 2>/dev/null');
-      await exec('cmd appops set ' + pkg + ' RUN_IN_BACKGROUND allow 2>/dev/null');
-      await exec('cmd appops set ' + pkg + ' RUN_ANY_IN_BACKGROUND allow 2>/dev/null');
-    } else {
-      await exec('dumpsys deviceidle whitelist -' + pkg + ' 2>/dev/null');
-      await exec('cmd appops set ' + pkg + ' RUN_IN_BACKGROUND default 2>/dev/null');
-      await exec('cmd appops set ' + pkg + ' RUN_ANY_IN_BACKGROUND default 2>/dev/null');
-    }
-    app.exempted = adding;
-    btn.classList.toggle('on', adding);
-    item.classList.toggle('exempted', adding);
-    const exempted = new Set(allApps.filter(a => a.exempted).map(a => a.pkg));
-    await saveConfig(exempted);
-    toast(adding ? pkg + ' exempted' : pkg + ' restored');
-  } catch(e) { toast('Error: ' + e); }
+  const add = !app.exempted;
+  if (add) {
+    await exec('dumpsys deviceidle whitelist +' + pkg + ' 2>/dev/null; cmd appops set ' + pkg + ' RUN_IN_BACKGROUND allow 2>/dev/null; cmd appops set ' + pkg + ' RUN_ANY_IN_BACKGROUND allow 2>/dev/null').catch(()=>{});
+  } else {
+    await exec('dumpsys deviceidle whitelist -' + pkg + ' 2>/dev/null; cmd appops set ' + pkg + ' RUN_IN_BACKGROUND default 2>/dev/null; cmd appops set ' + pkg + ' RUN_ANY_IN_BACKGROUND default 2>/dev/null').catch(()=>{});
+  }
+  app.exempted = add;
+  btn.classList.toggle('on', add);
+  item.classList.toggle('exempted', add);
+  await saveConfig(new Set(allApps.filter(a=>a.exempted).map(a=>a.pkg)));
   btn.disabled = false;
 };
 
-let activeLogSource = 'doze';
+const LOG_CMDS = {
+  doze: 'dumpsys deviceidle 2>&1',
+  install: 'cat ' + MOD + '/install.log 2>/dev/null || echo "(no install log)"',
+  appops: 'cmd appops get ' + GMS + ' 2>&1',
+};
 
-window.loadLog = async function(source, btn) {
-  document.querySelectorAll('.log-btn').forEach(b => b.classList.remove('active'));
+window.switchLog = async function(src, btn) {
+  document.querySelectorAll('.log-chip').forEach(c=>c.classList.remove('active'));
   btn.classList.add('active');
-  activeLogSource = source;
+  activeLog = src;
   const area = document.getElementById('logArea');
-  area.textContent = 'Loading...';
-  const cmds = {
-    doze: 'dumpsys deviceidle 2>&1',
-    install: 'cat /data/adb/modules/gms-optimizer-reborn/install.log 2>/dev/null || echo "No install log found."',
-    appops: 'cmd appops get ' + GMS + ' 2>&1',
-  };
+  area.textContent = 'Loading…';
   try {
-    const { stdout, stderr } = await exec(cmds[source]);
-    area.textContent = (stdout || '') + (stderr || '') || '(empty)';
-  } catch(e) {
-    area.textContent = 'Error: ' + e;
-  }
+    const {stdout,stderr} = await exec(LOG_CMDS[src]);
+    area.textContent = (stdout+stderr).trim() || '(empty)';
+  } catch(e) { area.textContent = 'Error: ' + e; }
+};
+
+window.exportLog = async function() {
+  const area = document.getElementById('logArea');
+  const content = area.textContent;
+  if (!content || content === 'Select a log source above.') { toast('Load a log first'); return; }
+  const ts = new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
+  const path = '/sdcard/Download/gms-opt-' + activeLog + '-' + ts + '.txt';
+  const safe = content.replace(/'/g,"'\\''");
+  try {
+    await exec("printf '%s' '" + safe + "' > \"" + path + '"');
+    toast('Saved to ' + path);
+  } catch(e) { toast('Export failed: ' + e); }
+};
+
+window.bugReport = async function() {
+  const area = document.getElementById('logArea');
+  area.textContent = 'Generating bug report…';
+  const ts = new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
+  const path = '/sdcard/Download/gms-opt-bugreport-' + ts + '.txt';
+  const cmd = [
+    'echo "=== GMS Optimizer Reborn Bug Report ===" > "' + path + '"',
+    'echo "Date: $(date)" >> "' + path + '"',
+    'echo "" >> "' + path + '"',
+    'echo "=== Module ===" >> "' + path + '"',
+    'cat ' + MOD + '/module.prop >> "' + path + '" 2>/dev/null',
+    'cat ' + MOD + '/profile.conf >> "' + path + '" 2>/dev/null',
+    'echo "" >> "' + path + '"',
+    'echo "=== Device ===" >> "' + path + '"',
+    'getprop | grep -E "ro.product|ro.build.version|ro.vendor.oplus|ro.boot" >> "' + path + '"',
+    'echo "" >> "' + path + '"',
+    'echo "=== Doze State ===" >> "' + path + '"',
+    'dumpsys deviceidle >> "' + path + '" 2>&1',
+    'echo "" >> "' + path + '"',
+    'echo "=== GMS AppOps ===" >> "' + path + '"',
+    'cmd appops get ' + GMS + ' >> "' + path + '" 2>&1',
+    'echo "" >> "' + path + '"',
+    'echo "=== Install Log ===" >> "' + path + '"',
+    'cat ' + MOD + '/install.log >> "' + path + '" 2>/dev/null',
+    'echo "Report ready: ' + path + '"',
+  ].join('; ');
+  try {
+    const {stdout} = await exec(cmd);
+    area.textContent = stdout.trim();
+    toast('Bug report saved to /sdcard/Download/');
+  } catch(e) { area.textContent = 'Error: ' + e; }
 };
 
 async function detectOOS() {
   try {
-    const { stdout } = await exec('getprop ro.product.brand 2>/dev/null; getprop ro.vendor.oplus.market.name 2>/dev/null');
-    const out = stdout.toLowerCase();
-    if (out.includes('oneplus') || out.includes('oxygenow') || out.includes('oxygen')) {
-      document.getElementById('oosBanner').classList.add('visible');
-    }
+    const {stdout} = await exec('getprop ro.product.brand 2>/dev/null; getprop ro.vendor.oplus.market.name 2>/dev/null');
+    if (/(oneplus|oxygen)/i.test(stdout)) document.getElementById('oosBanner').classList.add('show');
   } catch(e) {}
 }
 
-window.checkStatus();
-window.checkFmdStatus();
-detectOOS();
-refreshProfileUI();
-
-(async function() {
+(async function init() {
   try {
-    const { stdout } = await exec('grep -E "^version=|^author=" ' + MOD + '/module.prop 2>/dev/null');
-    const version = (stdout.match(/^version=(.+)/m) || [])[1] || '';
-    const author  = (stdout.match(/^author=(.+)/m) || [])[1] || '';
-    const parts = [];
-    if (version) parts.push('v' + version.trim());
-    if (author)  parts.push('by ' + author.trim());
-    document.getElementById('subtitle').textContent = parts.join(' · ') || 'GMS Optimizer Reborn';
-  } catch(e) { document.getElementById('subtitle').textContent = 'GMS Optimizer Reborn'; }
+    const {stdout} = await exec('grep -E "^version=|^author=" ' + MOD + '/module.prop 2>/dev/null');
+    const v = (stdout.match(/^version=(.+)/m)||[])[1]||'';
+    const a = (stdout.match(/^author=(.+)/m)||[])[1]||'';
+    document.getElementById('topSub').textContent = [v?'v'+v.trim():'', a?'by '+a.trim():''].filter(Boolean).join(' · ') || 'GMS Optimizer Reborn';
+  } catch(e) { document.getElementById('topSub').textContent = 'GMS Optimizer Reborn'; }
+  checkStatus();
+  checkFmd();
+  detectOOS();
+  refreshProfileUI();
+  startMonitor();
 })();
 </script>
-
 </body>
 </html>
