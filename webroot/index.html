@@ -679,7 +679,7 @@ function parseLabel(pkg) {
   if (APP_LABELS[pkg]) return APP_LABELS[pkg];
   const segs = pkg.split('.');
   const meaningful = segs.filter(s => s.length > 2 && !SKIP_SEGS.has(s.toLowerCase()));
-  const raw = meaningful[meaningful.length - 1] || segs[segs.length - 1] || pkg;
+  const raw = meaningful[0] || segs[segs.length - 1] || pkg;
   return raw
     .replace(/([A-Z])/g,' $1')
     .replace(/[_.-]+/g,' ')
@@ -712,11 +712,13 @@ const iconObserver = new IntersectionObserver(entries => {
 
 async function updateIcon(pkg, el) {
   if (el.querySelector('img')) return;
+  const letter = el.textContent;
   const img = document.createElement('img');
   img.src = 'ksu://icon/' + pkg;
   img.alt = '';
-  img.onerror = () => { img.remove(); };
-  el.prepend(img);
+  img.onerror = () => { el.textContent = letter; };
+  el.textContent = '';
+  el.appendChild(img);
 }
 
 window.showPage = function(id, btn) {
