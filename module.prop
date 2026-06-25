@@ -6,3 +6,4 @@ author=ferrdishx
 description=Forces Google Play Services into battery optimization, enabling real Doze mode savings
 updateJson=https://raw.githubusercontent.com/ferrdishx/gms-optimizer-reborn/master/module.json
 support_ksu=true
+banner=https://raw.githubusercontent.com/ferrdishx/gms-optimizer-reborn/master/banner.png
