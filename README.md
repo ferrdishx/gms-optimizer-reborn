@@ -1,4 +1,8 @@
 <div align="center">
+  <img src="banner.png" alt="GMS Optimizer Reborn" width="100%">
+</div>
+
+<div align="center">
 
 # GMS Optimizer Reborn
 
