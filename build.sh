@@ -21,6 +21,7 @@ SHARED_FILES=(
     "uninstall.sh"
     "README.md"
     "changelog.md"
+    "banner.png"
 )
 
 # Normal build files
