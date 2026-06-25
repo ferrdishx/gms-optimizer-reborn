@@ -1,5 +1,10 @@
 ## Changelog
 
+### 1.0.2
+- **WebUI — Icons:** fixed icon clipping caused by img and letter avatar rendering side-by-side in flex container; letter is now cleared before the icon loads and restored on error
+- **WebUI — App labels:** removed heuristic name guessing entirely; initial render uses only known labels from the built-in map, all other apps show their real name fetched via `aapt2`/`aapt` as they enter the viewport
+- **WebUI — Search:** filter now uses real cached labels instead of the package name heuristic
+
 ### 1.0.1
 - **WebUI — Status check:** fixed false "Not Optimized" on OEM ROMs (Samsung, Xiaomi) that keep GMS in the system-level Doze whitelist; status now checks only the user whitelist
 - **WebUI — RAM metric:** now sums all GMS processes (gms, gms.ui, gms.unstable, gms.persistent, etc.) instead of only the main process PID
