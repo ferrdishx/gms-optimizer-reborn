@@ -621,7 +621,39 @@ const MESSAGING_PKGS = new Set([
 
 const SKIP_SEGS = new Set(['com','org','net','io','dev','br','android','google','app','apps','application','mobile','phone','inc','ltd','co','me']);
 const AVATAR_COLORS = ['#2E7D52','#1565C0','#6A1B9A','#C62828','#E65100','#00838F','#37474F','#4E342E'];
-const iconCache = new Map();
+const labelCache = new Map();
+
+async function fetchLabel(pkg) {
+  if (APP_LABELS[pkg]) return APP_LABELS[pkg];
+  if (labelCache.has(pkg)) return labelCache.get(pkg);
+  labelCache.set(pkg, null);
+  try {
+    const {stdout} = await exec(
+      'APK=$(pm path "' + pkg + '" 2>/dev/null | head -1 | sed "s/package://;s/ //g");' +
+      '[ -n "$APK" ] && { aapt2 dump badging "$APK" 2>/dev/null || aapt dump badging "$APK" 2>/dev/null; } | grep "^application-label:" | sed "s/application-label://;s/\'//g" | head -1'
+    );
+    const label = stdout.trim() || null;
+    if (label) labelCache.set(pkg, label);
+    return label;
+  } catch(e) { return null; }
+}
+
+const labelObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const el = entry.target;
+    const pkg = el.dataset.labelPkg;
+    if (pkg) updateLabel(pkg, el);
+    labelObserver.unobserve(el);
+  });
+}, {threshold: 0.1});
+
+async function updateLabel(pkg, el) {
+  const label = await fetchLabel(pkg);
+  if (label && el.isConnected) el.textContent = label;
+}
+
+
 let allApps = [];
 let activeLog = 'doze';
 let currentProfile = 'balanced';
@@ -665,22 +697,7 @@ function avatarColor(pkg) {
 }
 
 async function fetchIcon(pkg) {
-  if (iconCache.has(pkg)) return iconCache.get(pkg);
-  iconCache.set(pkg, null);
-  try {
-    const {stdout} = await exec(
-      'APK=$(pm path "' + pkg + '" 2>/dev/null | cut -d: -f2 | tr -d " " | head -1);' +
-      'if [ -n "$APK" ];then ' +
-        'ICON=$(unzip -l "$APK" 2>/dev/null | grep -E "\\.png$" | grep -iE "ic_launcher[^_]" | grep -iv "round|foreground|background|night" | awk \'{print $NF}\' | grep -iE "xxhdpi|xhdpi|hdpi" | head -1);' +
-        '[ -z "$ICON" ] && ICON=$(unzip -l "$APK" 2>/dev/null | grep -E "ic_launcher\\.png" | awk \'{print $NF}\' | head -1);' +
-        '[ -n "$ICON" ] && unzip -p "$APK" "$ICON" 2>/dev/null | base64 -w 0;' +
-      'fi'
-    );
-    const b64 = stdout.trim();
-    const icon = b64 ? 'data:image/png;base64,' + b64 : null;
-    iconCache.set(pkg, icon);
-    return icon;
-  } catch(e) { return null; }
+  return 'ksu://icon/' + pkg;
 }
 
 const iconObserver = new IntersectionObserver(entries => {
@@ -694,10 +711,12 @@ const iconObserver = new IntersectionObserver(entries => {
 }, {threshold: 0.1});
 
 async function updateIcon(pkg, el) {
-  const icon = await fetchIcon(pkg);
-  if (icon) {
-    el.innerHTML = '<img src="' + icon + '" alt="">';
-  }
+  if (el.querySelector('img')) return;
+  const img = document.createElement('img');
+  img.src = 'ksu://icon/' + pkg;
+  img.alt = '';
+  img.onerror = () => { img.remove(); };
+  el.prepend(img);
 }
 
 window.showPage = function(id, btn) {
@@ -720,7 +739,7 @@ window.checkStatus = async function() {
   val.textContent = 'Checking…';
   try {
     const [{stdout: wl}, {stdout: pf}] = await Promise.all([
-      exec('dumpsys deviceidle whitelist 2>/dev/null | grep -c "' + GMS + '"'),
+      exec('dumpsys deviceidle whitelist 2>/dev/null | awk \'/Whitelist.*user/{p=1;next}/Whitelist/{p=0}p\' | grep -c "' + GMS + '"'),
       exec('cat "' + PROF_FILE + '" 2>/dev/null'),
     ]);
     const inList = parseInt(wl.trim()) > 0;
@@ -738,7 +757,7 @@ async function refreshMetrics() {
     const [{stdout: procs}, {stdout: svc}, {stdout: ram}] = await Promise.all([
       exec('ps -A 2>/dev/null | grep -c "[c]om.google.android.gms" || echo 0'),
       exec('dumpsys activity services ' + GMS + ' 2>/dev/null | grep -c "ServiceRecord{" || echo 0'),
-      exec('PID=$(pidof ' + GMS + ' 2>/dev/null | awk \'{print $1}\'); [ -n "$PID" ] && awk \'/VmRSS/{print int($2/1024)}\' /proc/$PID/status 2>/dev/null || echo 0'),
+      exec('ps -A -o PID,NAME 2>/dev/null | awk \'/com\\.google\\.android\\.gms/{print $1}\' | while read p; do awk \'/VmRSS/{print $2}\' /proc/$p/status 2>/dev/null; done | awk \'{s+=$1}END{print (s?int(s/1024):0)}\''),
     ]);
     const pEl = document.getElementById('metricProcs');
     const sEl = document.getElementById('metricSvc');
@@ -929,13 +948,16 @@ function renderApps(apps) {
     return '<div class="app-item' + (exempted?' exempted':'') + '" id="ai-' + CSS.escape(pkg) + '">' +
       '<div class="app-avatar" data-pkg="' + esc(pkg) + '" style="background:' + color + ';color:#fff">' + initial + '</div>' +
       '<div class="app-info">' +
-        '<div class="app-name">' + esc(label) + '</div>' +
+        '<div class="app-name" data-label-pkg="' + esc(pkg) + '">' + esc(label) + '</div>' +
         '<div class="app-pkg">' + esc(pkg) + '</div>' +
       '</div>' +
       '<button class="toggle' + (exempted?' on':'') + '" onclick="toggleApp(\'' + sp + '\',this)"></button>' +
     '</div>';
   }).join('');
   list.querySelectorAll('.app-avatar[data-pkg]').forEach(el => iconObserver.observe(el));
+  list.querySelectorAll('.app-name[data-label-pkg]').forEach(el => {
+    if (!APP_LABELS[el.dataset.labelPkg]) labelObserver.observe(el);
+  });
 }
 
 window.filterApps = function() {
