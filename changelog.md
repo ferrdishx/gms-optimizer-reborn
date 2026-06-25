@@ -1,5 +1,11 @@
 ## Changelog
 
+### 1.0.1
+- **WebUI — Status check:** fixed false "Not Optimized" on OEM ROMs (Samsung, Xiaomi) that keep GMS in the system-level Doze whitelist; status now checks only the user whitelist
+- **WebUI — RAM metric:** now sums all GMS processes (gms, gms.ui, gms.unstable, gms.persistent, etc.) instead of only the main process PID
+- **WebUI — Icons:** replaced slow APK extraction (unzip + base64) with native `ksu://icon/` URI; icons load instantly and work with adaptive icon formats
+- **WebUI — App labels:** added lazy real-name resolution via `aapt2`/`aapt` for apps not in the built-in label map; falls back to package name heuristic if aapt is unavailable
+
 ### 1.0.0
 - Rebranded as **GMS Optimizer Reborn** (fork of MarsPatrick/universal-gms-doze 1.9.10)
 - All scripts rewritten without inline comments, English only
