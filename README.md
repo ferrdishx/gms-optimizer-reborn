@@ -55,6 +55,7 @@ By default, Android whitelists Google Play Services from battery optimization, p
 Available directly from the KernelSU or APatch module page.
 
 ### Home
+
 | Feature | Description |
 |---|---|
 | Optimization Status | Live GMS Doze status with active profile indicator |
@@ -63,6 +64,7 @@ Available directly from the KernelSU or APatch module page.
 | Force Re-apply | Removes GMS from all Doze whitelists immediately without rebooting |
 
 ### Profiles
+
 Three optimization profiles, persisted across reboots:
 
 | Profile | Description |
@@ -72,12 +74,14 @@ Three optimization profiles, persisted across reboots:
 | **Gaming** | Temporarily re-whitelists GMS and sets all AppOps to allow. Switch back after your session. |
 
 ### Exemptions
-- Full app list with friendly names, letter avatars and package search
+
+- Full app list with real app names and icons, package search
 - Toggle individual apps in or out of the Doze exemption list
 - **Auto-detect Messaging** — automatically detects and exempts installed messaging apps (WhatsApp, Telegram, Signal, Discord and more)
 - Changes are saved to `exemptions.conf` and re-applied on every boot
 
 ### Logs
+
 Direct in-UI access to Doze state dump, install log and GMS AppOps output — no terminal needed.
 
 ---
@@ -93,10 +97,10 @@ gmsc
 Or check manually:
 
 ```sh
-dumpsys deviceidle
+dumpsys deviceidle whitelist
 ```
 
-Look for `Whitelist (except idle) system apps:` — if `com.google.android.gms` is absent, optimization is active.
+Look for `Whitelist user apps:` and `Whitelist (except idle) user apps:` — if `com.google.android.gms` is absent from both sections, optimization is active. OEM ROMs (Samsung, Xiaomi) may keep GMS in the system-level whitelist by design; the module targets the user-level whitelist which is what actually controls Doze behavior.
 
 ---
 
