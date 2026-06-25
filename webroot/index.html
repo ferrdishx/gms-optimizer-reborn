@@ -953,8 +953,8 @@ function renderApps(apps) {
   const list = document.getElementById('appList');
   if (!apps.length) { list.innerHTML = '<div style="color:var(--md-outline);font-size:12px;padding:8px">No apps found</div>'; return; }
   list.innerHTML = apps.map(({pkg, exempted}) => {
-    const label = parseLabel(pkg);
-    const initial = label[0].toUpperCase();
+    const label = APP_LABELS[pkg] || '';
+    const initial = (label[0] || pkg.replace(/.*\./,'')[0] || '?').toUpperCase();
     const color = avatarColor(pkg);
     const sp = pkg.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     return '<div class="app-item' + (exempted?' exempted':'') + '" id="ai-' + CSS.escape(pkg) + '">' +
@@ -974,7 +974,10 @@ function renderApps(apps) {
 
 window.filterApps = function() {
   const q = document.getElementById('searchInput').value.toLowerCase();
-  renderApps(q ? allApps.filter(a => a.pkg.toLowerCase().includes(q) || parseLabel(a.pkg).toLowerCase().includes(q)) : allApps);
+  renderApps(q ? allApps.filter(a => {
+    const name = (APP_LABELS[a.pkg] || labelCache.get(a.pkg) || '').toLowerCase();
+    return a.pkg.toLowerCase().includes(q) || name.includes(q);
+  }) : allApps);
 };
 
 window.autoDetect = async function() {
